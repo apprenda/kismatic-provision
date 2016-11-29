@@ -32,21 +32,21 @@ func Cmd() *cobra.Command {
 		Use:   "aws",
 		Short: "Provision infrastructure on AWS.",
 		Long: `Provision infrastructure on AWS.
-		
+
 In addition to the commands below, AWS relies on some environment variables and conventions:
 Required:
   AWS_ACCESS_KEY_ID: [Required] Your AWS access key, required for all operations
   AWS_SECRET_ACCESS_KEY: [Required] Your AWS secret key, required for all operations
 
 Conditional: (These may be omitted if the -f flag is used)
-  AWS_SUBNET_ID: The ID of a subnet to try to place machines into. If this environment variable exists, 
+  AWS_SUBNET_ID: The ID of a subnet to try to place machines into. If this environment variable exists,
                  it must be a real subnet in the us-east-1 region or all commands will fail.
-  AWS_SECURITY_GROUP_ID: The ID of a security group to place all new machines in. Must be a part of the 
+  AWS_SECURITY_GROUP_ID: The ID of a security group to place all new machines in. Must be a part of the
                          above subnet or commands will fail.
-  AWS_KEY_NAME: The name of a Keypair in AWS to be used to create machines. If empty, we will attempt 
+  AWS_KEY_NAME: The name of a Keypair in AWS to be used to create machines. If empty, we will attempt
                 to use a key named 'kismatic-integration-testing' and fail if it does not exist.
   AWS_SSH_KEY_PATH: The absolute path to the private key associated with the Key Name above. If left blank,
-                    we will attempt to use a key named 'kismaticuser.key' in the same directory as the 
+                    we will attempt to use a key named 'kismaticuser.key' in the same directory as the
 					provision tool. This key is important as part of provisioning is ensuring that your
 					instance is online and is able to be reached via SSH.
 `,
@@ -64,8 +64,8 @@ func AWSCreateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Creates infrastructure for a new cluster. For now, only the US East region is supported.",
-		Long: `Creates infrastructure for a new cluster. 
-		
+		Long: `Creates infrastructure for a new cluster.
+
 For now, only the US East region is supported.
 
 Smallish instances will be created with public IP addresses. The command will not return until the instances are all online and accessible via SSH.`,
@@ -90,8 +90,8 @@ func AWSCreateMinikubeCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-mini",
 		Short: "Creates infrastructure for a single-node instance. For now, only the US East region is supported.",
-		Long: `Creates infrastructure for a single-node instance. 
-		
+		Long: `Creates infrastructure for a single-node instance.
+
 For now, only the US East region is supported.
 
 A smallish instance will be created with public IP addresses. The command will not return until the instance is online and accessible via SSH.`,
@@ -112,12 +112,12 @@ func AWSDeleteCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete-all",
 		Short: "Deletes all objects tagged as created by this machine with this tool. This will destroy clusters. Be ready.",
-		Long: `Deletes all objects tagged as CreatedBy this machine and ProvisionedBy kismatic. 
-		
+		Long: `Deletes all objects tagged as CreatedBy this machine and ProvisionedBy kismatic.
+
 This command destroys clusters.
 
 It has no way of knowing that you had really important data on them. It is utterly remorseless.
-		
+
 Be ready.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return deleteInfra()
@@ -196,10 +196,12 @@ func deleteInfra() error {
 }
 
 func prepareToModifyAWS(forceProvision bool) error {
+	if err := checkAWSDeploymentEnvironment(); err != nil {
+		return err
+	}
+
 	awsClient, _ := AWSClientFromEnvironment()
-
 	fmt.Printf("Using region %v\n", awsClient.client.Config.Region)
-
 	if err := checkAWSCredentials(); err != nil {
 		return err
 	}
@@ -209,20 +211,14 @@ func prepareToModifyAWS(forceProvision bool) error {
 		}
 	}
 
-	if err := checkAWSDeploymentEnvironment(); err != nil {
-		return err
-	}
-
 	s, err := os.Stat(awsClient.sshKey)
 	if os.IsNotExist(err) {
 		return err
 	}
 
 	if s.Mode().Perm()&0044 != 0000 {
-
 		return fmt.Errorf("Set permissions of %v to 0600", awsClient.sshKey)
 	}
-
 	return nil
 }
 
