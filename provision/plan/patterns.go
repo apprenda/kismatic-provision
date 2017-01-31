@@ -17,6 +17,7 @@ const OverlayNetworkPlan = `cluster:
   name: kubernetes
   admin_password: {{.AdminPassword}}      # This password is used to login to the Kubernetes Dashboard and can also be used for administration without a security certificate
   allow_package_installation: true      # When false, installation will not occur if any node is missing the correct deb/rpm packages. When true, the installer will attempt to install missing packages for you.
+  disconnected_installation: false			# Set to true if you have local package and Docker repositories seeded with Kismatic binaries.
   networking:
     type: overlay                        # overlay or routed. Routed pods can be addressed from outside the Kubernetes cluster; Overlay pods can only address each other.
     pod_cidr_block: 172.16.0.0/16        # Kubernetes will assign pods IPs in this range. Do not use a range that is already in use on your local network!
