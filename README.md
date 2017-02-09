@@ -108,6 +108,47 @@ to delete a Packet host by name. You will need to call once for every created no
 
 to delete all of the instances in your packet project. I mean all of 'em, even ones NOT created by the provision tool! Use with caution!
 
+# How to use with Openstack
+DNS and appropriate security group for the resultuing cluster has to pre-exist in the target Openstack environment.
+To start provisioning run:
+`provision-cmd openstack create`
+
+The command line accepts the following parameters:
+`
+Usage:
+  provision openstack create [flags]
+
+Flags:
+      --admin-pass string         Admin password for the cluster. This password will be also used as root password when nodes are created
+      --dns-ip string             IP of the DNS server 
+      --domain string             Domain name (default "ket")
+      --etcd-name string          ETCD node name pattern (default "ketautoetcd")
+  -e, --etcdNodeCount uint16      Count of etcd nodes to produce. (default 1)
+      --flavor string             Preferred Flavor
+  -f, --force-provision           If present, generate anything needed to build a cluster including VPCs, keypairs, routes, subnets, & a very insecure security group.
+      --image string              Preferred Image
+      --ingress-ip string         Floating IP for the ingress server
+      --master-name string        Master node name pattern (default "ketautomaster")
+  -m, --masterdNodeCount uint16   Count of master nodes to produce. (default 1)
+      --network string            Preferred Network
+  -n, --noplan                    If present, foregoes generating a plan file in this directory referencing the newly created nodes
+      --os-pass string            Openstack User Password
+      --os-tenant string          Openstack Tenant ID 
+      --os-url string             Openstack URL 
+      --os-user string            Openstack User Name
+      --sec-grp string            Preferred Security Group
+      --ssh-file string           SSH File (default "/ket/kismaticuser.key")
+      --ssh-user string           SSH User (default "kismaticuser")
+  -s, --storage-cluster           Create a storage cluster from all Worker nodes.
+      --suffix string             Domain suffix (default "local")
+      --worker-name string        Worker node name pattern (default "ketautoworker")
+  -w, --workerNodeCount uint16    Count of worker nodes to produce. (default 1)
+
+`
+If required parameters are not provided, the provisioner will launch an interactive wizard to collect the missing information
+
+The provisioning process on Openstack starts with creating an installer node. This node downloads all the necessary installation packages, starts a local web server (runs in Docker) and launches the requested nodes for the Kubernetes cluster via Openstack APIs. As the cluster members come online and initialize, they report back to the installer node. Once all the requested nodes are up, the installer pushes the required ssh keys to each node and starts the installation of the Kubernetes cluster. At the end of the installation, the Ingress node is assigned a floating IP (if requested) to provide access to future workloads from the outside.
+
 # Current limitations
 
 1. AWS is imited to us-east-1 region. (Packet has no such restriction)
