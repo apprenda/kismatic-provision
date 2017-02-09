@@ -22,6 +22,8 @@ _testmain.go
 *.exe
 *.test
 *.prof
+*.token
+*.DS_Store
 
 kismatic-*.yaml
 bin/
