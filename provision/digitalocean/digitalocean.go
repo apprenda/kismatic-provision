@@ -81,7 +81,7 @@ Smallish instances will be created with public IP addresses. The command will no
 	cmd.Flags().StringVarP(&opts.Image, "image", "", "ubuntu-16-04-x64", "Name of the image to use")
 	cmd.Flags().StringVarP(&opts.Region, "reg", "", "tor1", "Region to deploy to")
 	cmd.Flags().StringVarP(&opts.Token, "token", "t", "", "Digital Ocean API token")
-	cmd.Flags().StringVarP(&opts.ClusterTag, "clustertag", "", "kismatic", "TAG for all nodes in the cluster")
+	cmd.Flags().StringVarP(&opts.ClusterTag, "clustertag", "", "apprenda", "TAG for all nodes in the cluster")
 	cmd.Flags().StringVarP(&opts.SSHUser, "sshuser", "", "root", "SSH User name")
 	cmd.Flags().StringVarP(&opts.SshKeyPath, "sshpath", "", "", "Path to the ssh key")
 	cmd.Flags().StringVarP(&opts.SshKeyName, "sshfile", "", "", "ssh key name")
@@ -133,7 +133,7 @@ Be ready.`,
 	}
 
 	cmd.Flags().StringVarP(&opts.Token, "token", "t", "", "Digital Ocean API token")
-	cmd.Flags().StringVarP(&opts.ClusterTag, "clustertag", "", "kismatic", "TAG for all nodes in the cluster")
+	cmd.Flags().StringVarP(&opts.ClusterTag, "clustertag", "", "apprenda", "TAG for all nodes in the cluster")
 	cmd.Flags().BoolVarP(&opts.RemoveKey, "remove-key", "", true, "Inidicator whether the ssh key used for the cluster should be deleted")
 
 	return cmd

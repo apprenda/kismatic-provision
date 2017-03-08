@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	SSHKEY = "kismatic-key"
+	SSHKEY = "apprenda-key"
 )
 
 type infrastructureProvisioner interface {
