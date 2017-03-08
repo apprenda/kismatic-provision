@@ -98,7 +98,7 @@ func BlockUntilSSHOpen(host, publicIP, sshUser, sshKey string) {
 		cmd.Args = append(cmd.Args, fmt.Sprintf("%s@%s", sshUser, publicIP), "exit") // just call exit if we are able to connect
 		if err := cmd.Run(); err == nil {
 			// command succeeded
-			fmt.Printf("Node %s available on IP %s", host, publicIP)
+			fmt.Printf("Node %s available on IP %s\n", host, publicIP)
 			return
 		}
 		fmt.Printf(".")

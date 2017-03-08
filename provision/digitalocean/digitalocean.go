@@ -248,7 +248,7 @@ func makeInfra(opts DOOpts) error {
 		if opts.Storage {
 			storageNodes = nodes.Worker
 		}
-
+		remoteYaml := fmt.Sprintf("/ket/ssh/%s", opts.SshKeyName)
 		return makePlan(&plan.Plan{
 			AdminPassword:       generateAlphaNumericPassword(),
 			Etcd:                nodes.Etcd,
@@ -258,7 +258,7 @@ func makeInfra(opts DOOpts) error {
 			Storage:             storageNodes,
 			MasterNodeFQDN:      nodes.Master[0].PublicIPv4,
 			MasterNodeShortName: nodes.Master[0].PrivateIPv4,
-			SSHKeyFile:          opts.SshPrivate,
+			SSHKeyFile:          remoteYaml,
 			SSHUser:             nodes.Master[0].SSHUser,
 		}, opts, nodes)
 	}
@@ -291,7 +291,7 @@ func makePlan(pln *plan.Plan, opts DOOpts, nodes ProvisionedNodes) error {
 		boot := nodes.Boostrap[0]
 		planPath, _ := filepath.Abs(f.Name())
 		fmt.Println("File path:", planPath)
-		out, scperr := scpFile(planPath, "/ket", opts.SSHUser, boot.PublicIPv4, opts.SshPrivate)
+		out, scperr := scpFile(planPath, "/ket/kismatic-cluster.yaml", opts.SSHUser, boot.PublicIPv4, opts.SshPrivate)
 		if scperr != nil {
 			fmt.Errorf("Unable to push kismatic plan to boostrap node %v\n", scperr)
 		} else {
