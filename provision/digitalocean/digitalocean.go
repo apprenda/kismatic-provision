@@ -84,7 +84,7 @@ Smallish instances will be created with public IP addresses. The command will no
 	cmd.Flags().StringVarP(&opts.ClusterTag, "clustertag", "", "apprenda", "TAG for all nodes in the cluster")
 	cmd.Flags().StringVarP(&opts.SSHUser, "sshuser", "", "root", "SSH User name")
 	cmd.Flags().StringVarP(&opts.SshKeyPath, "sshpath", "", "", "Path to the ssh key")
-	cmd.Flags().StringVarP(&opts.SshKeyName, "sshfile", "", "", "ssh key name")
+	cmd.Flags().StringVarP(&opts.SshKeyName, "sshfile", "", "cluster.pem", "ssh key name")
 	cmd.Flags().Uint16VarP(&opts.BootstrapCount, "bootstrapCount", "", 1, "Number of bootstrap nodes to work with the cluster.")
 	cmd.Flags().BoolVarP(&opts.Storage, "storage-cluster", "s", false, "Create a storage cluster from all Worker nodes.")
 
@@ -181,9 +181,7 @@ func deleteInfra(opts DOOpts) error {
 
 func validateKeyFile(opts DOOpts) (string, string, error) {
 	var filePath string
-	if opts.SshKeyName == "" {
-		opts.SshKeyName = "kismatic.pem"
-	}
+
 	if opts.SshKeyPath == "" {
 		//try ssh dir next to the executable
 		dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
