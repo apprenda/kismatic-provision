@@ -81,7 +81,7 @@ Smallish instances will be created with public IP addresses. The command will no
 	cmd.Flags().StringVarP(&opts.Image, "image", "", "ubuntu-16-04-x64", "Name of the image to use")
 	cmd.Flags().StringVarP(&opts.Region, "reg", "", "tor1", "Region to deploy to")
 	cmd.Flags().StringVarP(&opts.Token, "token", "t", "", "Digital Ocean API token")
-	cmd.Flags().StringVarP(&opts.ClusterTag, "ckustertag", "", "kismatic", "TAG for all nodes in the cluster")
+	cmd.Flags().StringVarP(&opts.ClusterTag, "clustertag", "", "kismatic", "TAG for all nodes in the cluster")
 	cmd.Flags().StringVarP(&opts.SSHUser, "sshuser", "", "root", "SSH User name")
 	cmd.Flags().StringVarP(&opts.SshKeyPath, "sshpath", "", "", "Path to the ssh key")
 	cmd.Flags().StringVarP(&opts.SshKeyName, "sshfile", "", "", "ssh key name")
@@ -195,12 +195,12 @@ func validateKeyFile(opts DOOpts) (string, string, error) {
 	}
 
 	filePath = filepath.Join(opts.SshKeyPath, opts.SshKeyName)
-	s, err := os.Stat(filePath)
+	_, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
 		return "", "", fmt.Errorf("Private SSH file was not found in expected location. Create your own key pair and reference in options to the provision command. Change file permissions to allow w/r for the user (chmod 600) %v", err)
 	}
 
-	fmt.Println("SSH File mode", s.Mode().Perm())
+	//fmt.Println("SSH File mode", s.Mode().Perm())
 	//	if s.Mode().Perm()&0044 != 0000 {
 
 	//		return "", "", fmt.Errorf("Set permissions of %v to 0600", filePath)
@@ -215,6 +215,7 @@ func makeInfra(opts DOOpts) error {
 		fmt.Print("Enter Digital Ocean API Token: \n")
 		url, _ := reader.ReadString('\n')
 		opts.Token = strings.Trim(url, "\n")
+		opts.Token = strings.Replace(opts.Token, "\r", "", -1) //for Windows
 	}
 	sshPrivate, sshPublic, errkey := validateKeyFile(opts)
 	opts.SshPrivate = sshPrivate

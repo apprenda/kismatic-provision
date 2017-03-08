@@ -2,10 +2,10 @@ package digitalocean
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
-	//	"regexp"
-	"io/ioutil"
+	"regexp"
 	"time"
 
 	"github.com/sashajeltuhin/kismatic-provision/provision/plan"
@@ -274,5 +274,9 @@ func loadBootCmds() (string, error) {
 		fmt.Println("Cannot read public boot init file", errcmd)
 		return "", errcmd
 	}
-	return string(cmd), nil
+	s := string(cmd)
+	re := regexp.MustCompile(`\r?\n`)
+	s = re.ReplaceAllString(s, "")
+
+	return s, nil
 }
