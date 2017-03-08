@@ -224,7 +224,7 @@ func (p doProvisioner) WaitForIPs(opts DOOpts, drop Droplet) *Droplet {
 
 		if init.PublicIP != "" && err == nil {
 			// command succeeded
-			fmt.Printf("IP assinged: Public = %s ; Private %s", init.PublicIP, init.PrivateIP)
+			fmt.Printf("IP assinged to %s: Public = %s ; Private %s\n", init.Name, init.PublicIP, init.PrivateIP)
 			return &init
 		}
 		fmt.Printf(".")
@@ -245,7 +245,7 @@ func (p doProvisioner) TerminateNodes(opts DOOpts) error {
 func WaitForSSH(ProvisionedNodes ProvisionedNodes, sshKey string) error {
 	nodes := ProvisionedNodes.allNodes()
 	for _, n := range nodes {
-		BlockUntilSSHOpen(n.PublicIPv4, n.SSHUser, sshKey)
+		BlockUntilSSHOpen(n.Host, n.PublicIPv4, n.SSHUser, sshKey)
 	}
 	fmt.Println("SSH established on all nodes")
 	//run commands on bootstrap node
@@ -276,7 +276,7 @@ func loadBootCmds() (string, error) {
 	}
 	s := string(cmd)
 	re := regexp.MustCompile(`\r?\n`)
-	s = re.ReplaceAllString(s, "")
+	s = re.ReplaceAllString(s, " ")
 
 	return s, nil
 }

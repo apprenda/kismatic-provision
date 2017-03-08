@@ -88,7 +88,7 @@ func scpFile(filePath string, destFilePath string, user, hostname, sshKey string
 }
 
 // BlockUntilSSHOpen waits until the node with the given IP is accessible via SSH.
-func BlockUntilSSHOpen(publicIP, sshUser, sshKey string) {
+func BlockUntilSSHOpen(host, publicIP, sshUser, sshKey string) {
 	for {
 		cmd := exec.Command("ssh")
 		cmd.Args = append(cmd.Args, "-i", sshKey)
@@ -98,7 +98,7 @@ func BlockUntilSSHOpen(publicIP, sshUser, sshKey string) {
 		cmd.Args = append(cmd.Args, fmt.Sprintf("%s@%s", sshUser, publicIP), "exit") // just call exit if we are able to connect
 		if err := cmd.Run(); err == nil {
 			// command succeeded
-			fmt.Println("Node available", publicIP)
+			fmt.Printf("Node %s available on IP %s", host, publicIP)
 			return
 		}
 		fmt.Printf(".")
