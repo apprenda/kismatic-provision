@@ -197,13 +197,14 @@ func validateKeyFile(opts DOOpts) (string, string, error) {
 	filePath = filepath.Join(opts.SshKeyPath, opts.SshKeyName)
 	s, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
-		return "", "", fmt.Errorf("Private SSH file was not found in expected location. Create your own key pair and reference in options to the provision command. %v", err)
+		return "", "", fmt.Errorf("Private SSH file was not found in expected location. Create your own key pair and reference in options to the provision command. Change file permissions to allow w/r for the user (chmod 600) %v", err)
 	}
 
-	if s.Mode().Perm()&0044 != 0000 {
+	fmt.Println("SSH File mode", s.Mode().Perm())
+	//	if s.Mode().Perm()&0044 != 0000 {
 
-		return "", "", fmt.Errorf("Set permissions of %v to 0600", filePath)
-	}
+	//		return "", "", fmt.Errorf("Set permissions of %v to 0600", filePath)
+	//	}
 
 	return filePath, filePath + ".pub", nil
 }
