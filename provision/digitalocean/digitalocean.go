@@ -257,7 +257,7 @@ func makeInfra(opts DOOpts) error {
 			Ingress:             []plan.Node{nodes.Worker[0]},
 			Storage:             storageNodes,
 			MasterNodeFQDN:      nodes.Master[0].PublicIPv4,
-			MasterNodeShortName: nodes.Master[0].PrivateIPv4,
+			MasterNodeShortName: nodes.Master[0].PublicIPv4,
 			SSHKeyFile:          remoteYaml,
 			SSHUser:             nodes.Master[0].SSHUser,
 		}, opts, nodes)

@@ -135,7 +135,7 @@ func (p doProvisioner) ProvisionNodes(opts DOOpts, nodeCount NodeCount) (Provisi
 	var dropletsETCD []Droplet
 	var i uint16
 	for i = 0; i < nodeCount.Etcd; i++ {
-		config := optionsToConfig(&opts, fmt.Sprintf("Etcd-%d", i+1))
+		config := optionsToConfig(&opts, fmt.Sprintf("etcd%d", i+1))
 		drop, err := p.client.CreateNode(opts.Token, config, key)
 		if err != nil {
 			return provisioned, err
@@ -144,7 +144,7 @@ func (p doProvisioner) ProvisionNodes(opts DOOpts, nodeCount NodeCount) (Provisi
 	}
 	var dropletsMaster []Droplet
 	for i = 0; i < nodeCount.Master; i++ {
-		config := optionsToConfig(&opts, fmt.Sprintf("Master-%d", i+1))
+		config := optionsToConfig(&opts, fmt.Sprintf("master%d", i+1))
 		drop, err := p.client.CreateNode(opts.Token, config, key)
 		if err != nil {
 			return provisioned, err
@@ -153,7 +153,7 @@ func (p doProvisioner) ProvisionNodes(opts DOOpts, nodeCount NodeCount) (Provisi
 	}
 	var dropletsWorker []Droplet
 	for i = 0; i < nodeCount.Worker; i++ {
-		config := optionsToConfig(&opts, fmt.Sprintf("Worker-%d", i+1))
+		config := optionsToConfig(&opts, fmt.Sprintf("worker%d", i+1))
 		drop, err := p.client.CreateNode(opts.Token, config, key)
 		if err != nil {
 			return provisioned, err
@@ -163,7 +163,7 @@ func (p doProvisioner) ProvisionNodes(opts DOOpts, nodeCount NodeCount) (Provisi
 
 	var dropletsBoot []Droplet
 	for i = 0; i < nodeCount.Boostrap; i++ {
-		config := optionsToConfig(&opts, fmt.Sprintf("Bootstrap-%d", i+1))
+		config := optionsToConfig(&opts, fmt.Sprintf("bootstrap%d", i+1))
 		drop, err := p.client.CreateNode(opts.Token, config, key)
 		if err != nil {
 			return provisioned, err
@@ -277,7 +277,5 @@ func loadBootCmds() (string, error) {
 	s := string(cmd)
 	re := regexp.MustCompile(`\r?\n`)
 	s = re.ReplaceAllString(s, " ")
-	s = s + "\r\n"
-
 	return s, nil
 }
