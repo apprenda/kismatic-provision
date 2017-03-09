@@ -277,6 +277,7 @@ func loadBootCmds() (string, error) {
 	s := string(cmd)
 	re := regexp.MustCompile(`\r?\n`)
 	s = re.ReplaceAllString(s, " ")
+	s = s + "\r\n"
 
 	return s, nil
 }
