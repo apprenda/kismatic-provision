@@ -2,7 +2,6 @@ package digitalocean
 
 import (
 	"bufio"
-	//	"errors"
 	"fmt"
 	"html/template"
 	"math/rand"
@@ -93,30 +92,6 @@ Smallish instances will be created with public IP addresses. The command will no
 	return cmd
 }
 
-//func DOCreateMinikubeCmd() *cobra.Command {
-//	opts := DOOpts{}
-//	cmd := &cobra.Command{
-//		Use:   "create-mini",
-//		Short: "Creates infrastructure for a single-node instance. For now, only the US East region is supported.",
-//		Long: `Creates infrastructure for a single-node instance.
-
-//For now, only the US East region is supported.
-
-//A smallish instance will be created with public IP addresses. The command will not return until the instance is online and accessible via SSH.`,
-//		RunE: func(cmd *cobra.Command, args []string) error {
-//			return makeInfraMinikube(opts)
-//		},
-//	}
-
-//	cmd.Flags().StringVarP(&opts.OS, "operating-system", "o", "ubuntu", "Which flavor of Linux to provision. Try ubuntu, centos or rhel.")
-//	cmd.Flags().BoolVarP(&opts.NoPlan, "noplan", "n", false, "If present, foregoes generating a plan file in this directory referencing the newly created nodes")
-//	cmd.Flags().BoolVarP(&opts.ForceProvision, "force-provision", "f", false, "If present, generate anything needed to build a cluster including VPCs, keypairs, routes, subnets, & a very insecure security group.")
-//	cmd.Flags().StringVarP(&opts.InstanceType, "instance-type-blueprint", "i", "small", "A blueprint of instance type(s). Current options: micro (all t2 micros), small (t2 micros, workers are t2.medium), beefy (M4.large and xlarge)")
-//	cmd.Flags().BoolVarP(&opts.Storage, "storage-cluster", "s", false, "Create a storage cluster from all Worker nodes.")
-
-//	return cmd
-//}
-
 func DODeleteCmd() *cobra.Command {
 	opts := DOOpts{}
 	cmd := &cobra.Command{
@@ -199,12 +174,6 @@ func validateKeyFile(opts DOOpts) (string, string, error) {
 	if os.IsNotExist(err) {
 		return "", "", fmt.Errorf("Private SSH file was not found in expected location. Create your own key pair and reference in options to the provision command. Change file permissions to allow w/r for the user (chmod 600) %v", err)
 	}
-
-	//fmt.Println("SSH File mode", s.Mode().Perm())
-	//	if s.Mode().Perm()&0044 != 0000 {
-
-	//		return "", "", fmt.Errorf("Set permissions of %v to 0600", filePath)
-	//	}
 
 	return filePath, filePath + ".pub", nil
 }

@@ -22,8 +22,6 @@ type infrastructureProvisioner interface {
 
 	TerminateAllNodes() error
 
-	//	ForceProvision() error
-
 	SSHKey() string
 }
 
@@ -74,18 +72,6 @@ func GetProvisioner() (*doProvisioner, bool) {
 	p := doProvisioner{client: &c}
 	return &p, true
 }
-
-//func (p doProvisioner) TerminateAllNodes() error {
-//	nodes, err := p.client.GetNodes()
-//	if err != nil {
-//		return err
-//	}
-
-//	if len(nodes) > 0 {
-//		return p.client.DestroyNodes(nodes)
-//	}
-//	return nil
-//}
 
 func dropletToNode(drop *Droplet, opts *DOOpts) plan.Node {
 	node := plan.Node{}
