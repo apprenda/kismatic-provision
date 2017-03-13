@@ -31,6 +31,7 @@ type DOOpts struct {
 	ForceProvision  bool
 	KeyPairName     string
 	InstanceType    string
+	WorkerType      string
 	Image           string
 	Region          string
 	Size            string
@@ -78,6 +79,7 @@ Smallish instances will be created with public IP addresses. The command will no
 	cmd.Flags().BoolVarP(&opts.NoPlan, "noplan", "n", false, "If present, foregoes generating a plan file in this directory referencing the newly created nodes")
 	cmd.Flags().BoolVarP(&opts.ForceProvision, "force-provision", "f", false, "If present, generate anything needed to build a cluster including VPCs, keypairs, routes, subnets, & a very insecure security group.")
 	cmd.Flags().StringVarP(&opts.InstanceType, "instance-type", "i", "1gb", "Size of the instance. Current options: 1gb, 2gb, 4gb")
+	cmd.Flags().StringVarP(&opts.WorkerType, "worker-type", "", "4gb", "Size of the instance. Current options: 1gb, 2gb, 4gb")
 	cmd.Flags().StringVarP(&opts.Image, "image", "", "ubuntu-16-04-x64", "Name of the image to use")
 	cmd.Flags().StringVarP(&opts.Region, "reg", "", "tor1", "Region to deploy to")
 	cmd.Flags().StringVarP(&opts.Token, "token", "t", "", "Digital Ocean API token")

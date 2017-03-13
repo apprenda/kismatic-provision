@@ -97,13 +97,18 @@ func dropletToNode(drop *Droplet, opts *DOOpts) plan.Node {
 	return node
 }
 
-func optionsToConfig(opts *DOOpts, name string) NodeConfig {
+func optionsToConfig(opts *DOOpts, name string, sizeOverride string) NodeConfig {
 	config := NodeConfig{}
 	config.Image = opts.Image
 	config.Name = name
 	config.Region = opts.Region
 	config.PrivateNetworking = true
-	config.Size = opts.InstanceType
+	if sizeOverride != "" {
+		config.Size = sizeOverride
+	} else {
+		config.Size = opts.InstanceType
+	}
+
 	if opts.ClusterTag != "" {
 		config.Tags = append(config.Tags, opts.ClusterTag)
 	} else {
@@ -135,7 +140,7 @@ func (p doProvisioner) ProvisionNodes(opts DOOpts, nodeCount NodeCount) (Provisi
 	var dropletsETCD []Droplet
 	var i uint16
 	for i = 0; i < nodeCount.Etcd; i++ {
-		config := optionsToConfig(&opts, fmt.Sprintf("etcd%d", i+1))
+		config := optionsToConfig(&opts, fmt.Sprintf("etcd%d", i+1), "")
 		drop, err := p.client.CreateNode(opts.Token, config, key)
 		if err != nil {
 			return provisioned, err
@@ -144,7 +149,7 @@ func (p doProvisioner) ProvisionNodes(opts DOOpts, nodeCount NodeCount) (Provisi
 	}
 	var dropletsMaster []Droplet
 	for i = 0; i < nodeCount.Master; i++ {
-		config := optionsToConfig(&opts, fmt.Sprintf("master%d", i+1))
+		config := optionsToConfig(&opts, fmt.Sprintf("master%d", i+1), "")
 		drop, err := p.client.CreateNode(opts.Token, config, key)
 		if err != nil {
 			return provisioned, err
@@ -153,7 +158,7 @@ func (p doProvisioner) ProvisionNodes(opts DOOpts, nodeCount NodeCount) (Provisi
 	}
 	var dropletsWorker []Droplet
 	for i = 0; i < nodeCount.Worker; i++ {
-		config := optionsToConfig(&opts, fmt.Sprintf("worker%d", i+1))
+		config := optionsToConfig(&opts, fmt.Sprintf("worker%d", i+1), opts.WorkerType)
 		drop, err := p.client.CreateNode(opts.Token, config, key)
 		if err != nil {
 			return provisioned, err
@@ -163,7 +168,7 @@ func (p doProvisioner) ProvisionNodes(opts DOOpts, nodeCount NodeCount) (Provisi
 
 	var dropletsBoot []Droplet
 	for i = 0; i < nodeCount.Boostrap; i++ {
-		config := optionsToConfig(&opts, fmt.Sprintf("bootstrap%d", i+1))
+		config := optionsToConfig(&opts, fmt.Sprintf("bootstrap%d", i+1), "")
 		drop, err := p.client.CreateNode(opts.Token, config, key)
 		if err != nil {
 			return provisioned, err
