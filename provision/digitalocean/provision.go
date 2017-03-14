@@ -83,7 +83,7 @@ func dropletToNode(drop *Droplet, opts *DOOpts) plan.Node {
 	return node
 }
 
-func optionsToConfig(opts *DOOpts, name string, sizeOverride string) NodeConfig {
+func optionsToConfig(opts *DOOpts, name string, sizeOverride string, userData string) NodeConfig {
 	config := NodeConfig{}
 	config.Image = opts.Image
 	config.Name = name
@@ -94,11 +94,14 @@ func optionsToConfig(opts *DOOpts, name string, sizeOverride string) NodeConfig 
 	} else {
 		config.Size = opts.InstanceType
 	}
+	if userData != "" {
+		config.UserData = userData
+	}
 
 	if opts.ClusterTag != "" {
 		config.Tags = append(config.Tags, opts.ClusterTag)
 	} else {
-		config.Tags = append(config.Tags, "kismatic")
+		config.Tags = append(config.Tags, "apprenda")
 	}
 	return config
 }
@@ -126,7 +129,7 @@ func (p doProvisioner) ProvisionNodes(opts DOOpts, nodeCount NodeCount) (Provisi
 	var dropletsETCD []Droplet
 	var i uint16
 	for i = 0; i < nodeCount.Etcd; i++ {
-		config := optionsToConfig(&opts, fmt.Sprintf("etcd%d", i+1), "")
+		config := optionsToConfig(&opts, fmt.Sprintf("etcd%d", i+1), "", "")
 		drop, err := p.client.CreateNode(opts.Token, config, key)
 		if err != nil {
 			return provisioned, err
@@ -135,7 +138,7 @@ func (p doProvisioner) ProvisionNodes(opts DOOpts, nodeCount NodeCount) (Provisi
 	}
 	var dropletsMaster []Droplet
 	for i = 0; i < nodeCount.Master; i++ {
-		config := optionsToConfig(&opts, fmt.Sprintf("master%d", i+1), "")
+		config := optionsToConfig(&opts, fmt.Sprintf("master%d", i+1), "", "")
 		drop, err := p.client.CreateNode(opts.Token, config, key)
 		if err != nil {
 			return provisioned, err
@@ -144,7 +147,7 @@ func (p doProvisioner) ProvisionNodes(opts DOOpts, nodeCount NodeCount) (Provisi
 	}
 	var dropletsWorker []Droplet
 	for i = 0; i < nodeCount.Worker; i++ {
-		config := optionsToConfig(&opts, fmt.Sprintf("worker%d", i+1), opts.WorkerType)
+		config := optionsToConfig(&opts, fmt.Sprintf("worker%d", i+1), opts.WorkerType, "")
 		drop, err := p.client.CreateNode(opts.Token, config, key)
 		if err != nil {
 			return provisioned, err
@@ -154,7 +157,12 @@ func (p doProvisioner) ProvisionNodes(opts DOOpts, nodeCount NodeCount) (Provisi
 
 	var dropletsBoot []Droplet
 	for i = 0; i < nodeCount.Boostrap; i++ {
-		config := optionsToConfig(&opts, fmt.Sprintf("bootstrap%d", i+1), "")
+		cmd, cmderr := loadBootCmds()
+		if cmderr != nil {
+			fmt.Println("Cannot load script file for boot init", cmderr)
+		}
+		config := optionsToConfig(&opts, fmt.Sprintf("bootstrap%d", i+1), "", cmd)
+		fmt.Println("Bootstrap node:", config)
 		drop, err := p.client.CreateNode(opts.Token, config, key)
 		if err != nil {
 			return provisioned, err
@@ -240,17 +248,16 @@ func WaitForSSH(ProvisionedNodes ProvisionedNodes, sshKey string) error {
 	}
 	fmt.Println("SSH established on all nodes")
 	//run commands on bootstrap node
-
-	if len(ProvisionedNodes.Boostrap) > 0 {
-		boot := ProvisionedNodes.Boostrap[0]
-		fmt.Println("Exec commands on bootstrap node:", boot.Host, boot.PublicIPv4)
-		cmd, errload := loadBootCmds()
-		if errload != nil {
-			fmt.Println("Cannot get path to exec", errload)
-		}
-		out, cmderr := ExecuteCmd(cmd, boot.PublicIPv4, boot.SSHUser, sshKey)
-		fmt.Println("SSH command output:", out, cmderr)
-	}
+	//	if len(ProvisionedNodes.Boostrap) > 0 {
+	//		boot := ProvisionedNodes.Boostrap[0]
+	//		fmt.Println("Exec commands on bootstrap node:", boot.Host, boot.PublicIPv4)
+	//		cmd, errload := loadBootCmds()
+	//		if errload != nil {
+	//			fmt.Println("Cannot load script file for boot init", errload)
+	//		}
+	//		out, cmderr := ExecuteCmd(cmd, boot.PublicIPv4, boot.SSHUser, sshKey)
+	//		fmt.Println("SSH command output:", out, cmderr)
+	//	}
 	return nil
 }
 
@@ -267,6 +274,6 @@ func loadBootCmds() (string, error) {
 	}
 	s := string(cmd)
 	re := regexp.MustCompile(`\r?\n`)
-	s = re.ReplaceAllString(s, " ")
+	s = re.ReplaceAllString(s, "\n")
 	return s, nil
 }

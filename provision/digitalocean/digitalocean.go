@@ -14,7 +14,6 @@ import (
 
 	garbler "github.com/michaelbironneau/garbler/lib"
 	"github.com/sashajeltuhin/kismatic-provision/provision/plan"
-	"github.com/sashajeltuhin/kismatic-provision/provision/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +26,6 @@ type DOOpts struct {
 	LeaveArtifacts  bool
 	RunKismatic     bool
 	NoPlan          bool
-	ForceProvision  bool
 	KeyPairName     string
 	InstanceType    string
 	WorkerType      string
@@ -36,11 +34,10 @@ type DOOpts struct {
 	Size            string
 	Storage         bool
 	SSHUser         string
-	SshKeyPath      string
 	SshKeyName      string
 	SshPrivate      string
 	SshPublic       string
-	BootstrapCount  uint16
+	BootstrapNode   bool
 	RemoveKey       bool
 }
 
@@ -61,12 +58,14 @@ func DOCreateCmd() *cobra.Command {
 	opts := DOOpts{}
 	cmd := &cobra.Command{
 		Use:   "create",
-		Short: "Creates infrastructure for a new cluster. For now, only the US East region is supported.",
+		Short: "Creates infrastructure for a new cluster.",
 		Long: `Creates infrastructure for a new cluster. 
-		
-For now, only the US East region is supported.
-
-Smallish instances will be created with public IP addresses. The command will not return until the instances are all online and accessible via SSH.`,
+		In addition to the commands below, the provisioner relies on some environment variables and conventions:
+Required:
+  DO_API_TOKEN: [Required] Your Digital Ocean access token, required for all operations
+  DO_SECRET_ACCESS_KEY: [Required] Your Digital Ocean secret key, required for all operations. If the env varaible does
+not exist, an attempt will be made to use ssh key file in the following relative location: ssh/cluster.pem file. If the file is
+not found, the program will fail.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return makeInfra(opts)
 		},
@@ -76,17 +75,13 @@ Smallish instances will be created with public IP addresses. The command will no
 	cmd.Flags().Uint16VarP(&opts.MasterNodeCount, "masterdNodeCount", "m", 1, "Count of master nodes to produce.")
 	cmd.Flags().Uint16VarP(&opts.WorkerNodeCount, "workerNodeCount", "w", 1, "Count of worker nodes to produce.")
 	cmd.Flags().BoolVarP(&opts.NoPlan, "noplan", "n", false, "If present, foregoes generating a plan file in this directory referencing the newly created nodes")
-	cmd.Flags().BoolVarP(&opts.ForceProvision, "force-provision", "f", false, "If present, generate anything needed to build a cluster including VPCs, keypairs, routes, subnets, & a very insecure security group.")
 	cmd.Flags().StringVarP(&opts.InstanceType, "instance-type", "i", "1gb", "Size of the instance. Current options: 1gb, 2gb, 4gb")
-	cmd.Flags().StringVarP(&opts.WorkerType, "worker-type", "", "4gb", "Size of the instance. Current options: 1gb, 2gb, 4gb")
+	cmd.Flags().StringVarP(&opts.WorkerType, "worker-type", "", "4gb", "Size of the worker node instance. Current options: 1gb, 2gb, 4gb")
 	cmd.Flags().StringVarP(&opts.Image, "image", "", "ubuntu-16-04-x64", "Name of the image to use")
-	cmd.Flags().StringVarP(&opts.Region, "reg", "", "tor1", "Region to deploy to")
-	cmd.Flags().StringVarP(&opts.Token, "token", "t", "", "Digital Ocean API token")
-	cmd.Flags().StringVarP(&opts.ClusterTag, "clustertag", "", "apprenda", "TAG for all nodes in the cluster")
+	cmd.Flags().StringVarP(&opts.Region, "region", "", "tor1", "Region to deploy to")
+	cmd.Flags().StringVarP(&opts.ClusterTag, "tag", "", "apprenda", "TAG for all nodes in the cluster")
 	cmd.Flags().StringVarP(&opts.SSHUser, "sshuser", "", "root", "SSH User name")
-	cmd.Flags().StringVarP(&opts.SshKeyPath, "sshpath", "", "", "Path to the ssh key")
-	cmd.Flags().StringVarP(&opts.SshKeyName, "sshfile", "", "cluster.pem", "ssh key name")
-	cmd.Flags().Uint16VarP(&opts.BootstrapCount, "bootstrapCount", "", 1, "Number of bootstrap nodes to work with the cluster.")
+	cmd.Flags().BoolVarP(&opts.BootstrapNode, "bootstrap", "", true, "Create a bootstrap node from which users can work with the cluster.")
 	cmd.Flags().BoolVarP(&opts.Storage, "storage-cluster", "s", false, "Create a storage cluster from all Worker nodes.")
 
 	return cmd
@@ -96,59 +91,27 @@ func DODeleteCmd() *cobra.Command {
 	opts := DOOpts{}
 	cmd := &cobra.Command{
 		Use:   "delete-all",
-		Short: "Deletes all objects tagged as created by this machine with this tool. This will destroy clusters. Be ready.",
-		Long: `Deletes all objects tagged as CreatedBy this machine and ProvisionedBy kismatic. 
-		
-This command destroys clusters.
-
-It has no way of knowing that you had really important data on them. It is utterly remorseless.
-		
-Be ready.`,
+		Short: "Deletes all the nodes from the Digital Ocean account",
+		Long:  `Deletes all the nodes based on the tag provided and also, if requested, removes the ssh key created during the provisioning`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return deleteInfra(opts)
 		},
 	}
 
-	cmd.Flags().StringVarP(&opts.Token, "token", "t", "", "Digital Ocean API token")
-	cmd.Flags().StringVarP(&opts.ClusterTag, "clustertag", "", "apprenda", "TAG for all nodes in the cluster")
-	cmd.Flags().BoolVarP(&opts.RemoveKey, "remove-key", "", true, "Inidicator whether the ssh key used for the cluster should be deleted")
+	cmd.Flags().StringVarP(&opts.ClusterTag, "tag", "", "apprenda", "All nodes with the provided tag will be removed")
+	cmd.Flags().BoolVarP(&opts.RemoveKey, "remove-key", "", true, "Inidicator whether the ssh key used for the provisioing should be deleted")
 
 	return cmd
 }
 
-// An Error made up of many contributing errors that all have equal weight (e.g. do not form a stack)
-type CompositeError struct {
-	e []error
-}
-
-func (c CompositeError) Error() string {
-	ret := ""
-	for _, e := range c.e {
-		ret = ret + fmt.Sprintf(" - %v\n", e)
-	}
-	return ret
-}
-
-func (c *CompositeError) add(woe error) {
-	c.e = append(c.e, woe)
-}
-
-func (c *CompositeError) merge(c2 CompositeError) {
-	for _, e := range c2.e {
-		c.e = append(c.e, e)
-	}
-}
-
-func (c *CompositeError) hasError() bool {
-	return len(c.e) > 0
-}
-
 func deleteInfra(opts DOOpts) error {
+	opts.Token = os.Getenv("DO_API_TOKEN")
 	reader := bufio.NewReader(os.Stdin)
 	if opts.Token == "" {
 		fmt.Print("Enter Digital Ocean API Token: ")
 		url, _ := reader.ReadString('\n')
 		opts.Token = strings.Trim(url, "\n")
+		opts.Token = strings.Replace(opts.Token, "\r", "", -1) //for Windows
 	}
 
 	provisioner, _ := GetProvisioner()
@@ -159,26 +122,31 @@ func deleteInfra(opts DOOpts) error {
 func validateKeyFile(opts DOOpts) (string, string, error) {
 	var filePath string
 
-	if opts.SshKeyPath == "" {
-		//try ssh dir next to the executable
+	sshKeyPath := os.Getenv("DO_SECRET_ACCESS_KEY")
+	if sshKeyPath == "" {
+		//try ssh dir relative to the executable
 		dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 		if err != nil {
 			fmt.Println("Cannot get path to exec", err)
 		}
-		opts.SshKeyPath = filepath.Join(dir, "ssh/")
-		fmt.Println("Trying to locate key in ssh/ folder", opts.SshKeyPath)
-	}
+		sshKeyPath = filepath.Join(dir, "ssh/")
+		fmt.Println("Trying to locate key in ssh/ folder", sshKeyPath)
 
-	filePath = filepath.Join(opts.SshKeyPath, opts.SshKeyName)
-	_, err := os.Stat(filePath)
-	if os.IsNotExist(err) {
-		return "", "", fmt.Errorf("Private SSH file was not found in expected location. Create your own key pair and reference in options to the provision command. Change file permissions to allow w/r for the user (chmod 600) %v", err)
+		filePath = filepath.Join(sshKeyPath, "cluster.pem")
+		_, staterr := os.Stat(filePath)
+		if os.IsNotExist(staterr) {
+			return "", "", fmt.Errorf("Private SSH file was not found in expected location. Create your own key pair and reference in options to the provision command. Change file permissions to allow w/r for the user (chmod 600) %v", err)
+		}
+	} else {
+		filePath = sshKeyPath
 	}
 
 	return filePath, filePath + ".pub", nil
 }
 
 func makeInfra(opts DOOpts) error {
+	opts.Token = os.Getenv("DO_API_TOKEN")
+	fmt.Println("DO API token env", opts.Token)
 	reader := bufio.NewReader(os.Stdin)
 	if opts.Token == "" {
 		fmt.Print("Enter Digital Ocean API Token: \n")
@@ -187,6 +155,9 @@ func makeInfra(opts DOOpts) error {
 		opts.Token = strings.Replace(opts.Token, "\r", "", -1) //for Windows
 	}
 	sshPrivate, sshPublic, errkey := validateKeyFile(opts)
+	s, _ := os.Stat(sshPrivate)
+	opts.SshKeyName = s.Name()
+	fmt.Println("SSH file name", opts.SshKeyName)
 	opts.SshPrivate = sshPrivate
 	opts.SshPublic = sshPublic
 	if errkey != nil {
@@ -194,12 +165,16 @@ func makeInfra(opts DOOpts) error {
 	}
 
 	fmt.Print("Provisioning\n")
+	var bootCount uint16 = 0
+	if opts.BootstrapNode {
+		bootCount = 1
+	}
 	provisioner, _ := GetProvisioner()
 	nodes, err := provisioner.ProvisionNodes(opts, NodeCount{
 		Etcd:     opts.EtcdNodeCount,
 		Worker:   opts.WorkerNodeCount,
 		Master:   opts.MasterNodeCount,
-		Boostrap: opts.BootstrapCount,
+		Boostrap: bootCount,
 	})
 
 	if err != nil {
@@ -219,7 +194,7 @@ func makeInfra(opts DOOpts) error {
 		if opts.Storage {
 			storageNodes = nodes.Worker
 		}
-		remoteYaml := fmt.Sprintf("/ket/ssh/%s", opts.SshKeyName)
+		remoteSSH := fmt.Sprintf("/ket/ssh/%s", opts.SshKeyName)
 		return makePlan(&plan.Plan{
 			AdminPassword:       generateAlphaNumericPassword(),
 			Etcd:                nodes.Etcd,
@@ -229,7 +204,7 @@ func makeInfra(opts DOOpts) error {
 			Storage:             storageNodes,
 			MasterNodeFQDN:      nodes.Master[0].PublicIPv4,
 			MasterNodeShortName: nodes.Master[0].PublicIPv4,
-			SSHKeyFile:          remoteYaml,
+			SSHKeyFile:          remoteSSH,
 			SSHUser:             nodes.Master[0].SSHUser,
 		}, opts, nodes)
 	}
@@ -258,10 +233,10 @@ func makePlan(pln *plan.Plan, opts DOOpts, nodes ProvisionedNodes) error {
 	w.Flush()
 
 	//scp plan file to bootstrap if requested
-	if opts.BootstrapCount > 0 {
+	if opts.BootstrapNode {
 		boot := nodes.Boostrap[0]
 		planPath, _ := filepath.Abs(f.Name())
-		fmt.Println("File path:", planPath)
+		fmt.Println("Copying kismatic plan file to bootstrap node:", planPath)
 		out, scperr := scpFile(planPath, "/ket/kismatic-cluster.yaml", opts.SSHUser, boot.PublicIPv4, opts.SshPrivate)
 		if scperr != nil {
 			fmt.Errorf("Unable to push kismatic plan to boostrap node %v\n", scperr)
@@ -325,28 +300,5 @@ func generateAlphaNumericPassword() string {
 			return "weakpassword"
 		}
 		attempts++
-	}
-}
-
-func askForInput(objList map[string]string, reader *bufio.Reader) string {
-	arrPairs := utils.SortMapbyVal(objList)
-	count := len(objList)
-	var arr = make([]string, count)
-	for i := 0; i < count; i++ {
-		arr[i] = arrPairs[i].Key
-		fmt.Printf("%d - %s\n", i+1, arrPairs[i].Value)
-	}
-
-	objI, _ := reader.ReadString('\n')
-	objIndex := strings.Trim(string(objI), "\n")
-	index, _ := strconv.Atoi(objIndex)
-	if index < 1 || index > len(objList) {
-		fmt.Print("Invalid selection. Try again")
-		return askForInput(objList, reader)
-	} else {
-		objID := arr[index-1]
-		fmt.Println("You picked ", objList[objID])
-		objID = strings.Trim(objID, "\"")
-		return objID
 	}
 }

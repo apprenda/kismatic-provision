@@ -4,9 +4,9 @@ import (
 	"os"
 
 	"github.com/apprenda/kismatic-provision/provision/aws"
+	"github.com/apprenda/kismatic-provision/provision/digitalocean"
 	"github.com/apprenda/kismatic-provision/provision/packet"
 	"github.com/apprenda/kismatic-provision/provision/vagrant"
-	"github.com/sashajeltuhin/kismatic-provision/provision/digitalocean"
 	"github.com/spf13/cobra"
 )
 
