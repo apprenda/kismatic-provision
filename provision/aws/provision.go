@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/apprenda/kismatic-provision/provision/plan"
+	"github.com/apprenda/kismatic/integration/aws"
 )
 
 const (
@@ -239,6 +240,10 @@ func (p awsProvisioner) updateNodeWithDeets(nodeID string, node *plan.Node) erro
 		// Get the hostname from the DNS name
 		re := regexp.MustCompile("[^.]*")
 		hostname := re.FindString(awsNode.PrivateDNSName)
+		// RedHat uses FQDN as the hostname
+		if awsNode.ImageID == string(aws.RedHat7East) {
+			hostname = awsNode.PrivateDNSName
+		}
 		node.Host = hostname
 		if node.PublicIPv4 != "" && node.Host != "" && node.PrivateIPv4 != "" {
 			return nil
