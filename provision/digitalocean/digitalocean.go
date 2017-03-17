@@ -23,15 +23,11 @@ type DOOpts struct {
 	EtcdNodeCount   uint16
 	MasterNodeCount uint16
 	WorkerNodeCount uint16
-	LeaveArtifacts  bool
-	RunKismatic     bool
 	NoPlan          bool
-	KeyPairName     string
 	InstanceType    string
 	WorkerType      string
 	Image           string
 	Region          string
-	Size            string
 	Storage         bool
 	SSHUser         string
 	SshKeyName      string
@@ -59,7 +55,12 @@ func DOCreateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Creates infrastructure for a new cluster.",
-		Long: `Creates infrastructure for a new cluster. 
+		Long: `Creates infrastructure for a new cluster. Optionally creates a bootstrap node to run the orchestration of Kubernetes
+		cluster from. If the bootstrap node is requested, the provisioner will download kismatic executables and kubectl during the process 
+		of VM initialization. By default, it will place the downloaded packages in the /ket/ folder. The default location can be overwritten
+		by setting an environmental variable 'DO_KET_INSTALL_DIR'. If the bootstrap node is not requested, the Kismatic and Kubectl packages 
+		will have to be downloaded manually. See digitalocean/scripts/bootinit.sh for details.
+		
 		In addition to the commands below, the provisioner relies on some environment variables and conventions:
 Required:
   DO_API_TOKEN: [Required] Your Digital Ocean access token, required for all operations
@@ -237,7 +238,12 @@ func makePlan(pln *plan.Plan, opts DOOpts, nodes ProvisionedNodes) error {
 		boot := nodes.Boostrap[0]
 		planPath, _ := filepath.Abs(f.Name())
 		fmt.Println("Copying kismatic plan file to bootstrap node:", planPath)
-		out, scperr := scpFile(planPath, "/ket/kismatic-cluster.yaml", opts.SSHUser, boot.PublicIPv4, opts.SshPrivate)
+		root := os.Getenv("DO_KET_INSTALL_DIR")
+		if root == "" {
+			root = KET_INSTALL_DIR
+		}
+		destPath := root + "kismatic - cluster.yaml"
+		out, scperr := scpFile(planPath, destPath, opts.SSHUser, boot.PublicIPv4, opts.SshPrivate)
 		if scperr != nil {
 			fmt.Errorf("Unable to push kismatic plan to boostrap node %v\n", scperr)
 		} else {

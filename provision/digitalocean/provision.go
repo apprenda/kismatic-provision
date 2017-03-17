@@ -6,13 +6,15 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/sashajeltuhin/kismatic-provision/provision/plan"
 )
 
 const (
-	SSHKEY = "apprenda-key"
+	SSHKEY          = "apprenda-key"
+	KET_INSTALL_DIR = "/ket/"
 )
 
 type infrastructureProvisioner interface {
@@ -247,17 +249,6 @@ func WaitForSSH(ProvisionedNodes ProvisionedNodes, sshKey string) error {
 		BlockUntilSSHOpen(n.Host, n.PublicIPv4, n.SSHUser, sshKey)
 	}
 	fmt.Println("SSH established on all nodes")
-	//run commands on bootstrap node
-	//	if len(ProvisionedNodes.Boostrap) > 0 {
-	//		boot := ProvisionedNodes.Boostrap[0]
-	//		fmt.Println("Exec commands on bootstrap node:", boot.Host, boot.PublicIPv4)
-	//		cmd, errload := loadBootCmds()
-	//		if errload != nil {
-	//			fmt.Println("Cannot load script file for boot init", errload)
-	//		}
-	//		out, cmderr := ExecuteCmd(cmd, boot.PublicIPv4, boot.SSHUser, sshKey)
-	//		fmt.Println("SSH command output:", out, cmderr)
-	//	}
 	return nil
 }
 
@@ -273,6 +264,14 @@ func loadBootCmds() (string, error) {
 		return "", errcmd
 	}
 	s := string(cmd)
+
+	root := os.Getenv("DO_KET_INSTALL_DIR")
+	if root == "" {
+		root = KET_INSTALL_DIR
+	}
+	initstatement := fmt.Sprintf("#!/bin/bash\nmkdir -p %s\ncd %s && ", root, root)
+	s = strings.Replace(s, "#!/bin/bash", initstatement, -1)
+
 	re := regexp.MustCompile(`\r?\n`)
 	s = re.ReplaceAllString(s, "\n")
 	return s, nil

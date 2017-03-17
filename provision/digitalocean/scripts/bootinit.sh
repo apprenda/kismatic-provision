@@ -1,6 +1,4 @@
 #!/bin/bash
-mkdir -p /ket &&
-cd /ket &&
 sudo apt-get update -y &&
 wget --no-check-certificate -O - https://github.com/apprenda/kismatic/releases/download/v1.2.1/kismatic-v1.2.1-linux-amd64.tar.gz | tar -zx && 
 sudo apt-get -y install git build-essential &&
