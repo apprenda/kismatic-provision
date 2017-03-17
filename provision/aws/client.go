@@ -27,6 +27,7 @@ type Node struct {
 	PrivateIP      string
 	PublicIP       string
 	SSHUser        string
+	ImageID        string
 }
 
 // AMI is the Amazon Machine Image
@@ -208,6 +209,7 @@ func (c Client) GetNode(id string) (*Node, error) {
 		PrivateIP:      *instance.PrivateIpAddress,
 		PublicIP:       publicIP,
 		SSHUser:        defaultSSHUserForAMI(AMI(*instance.ImageId)),
+		ImageID:        *instance.ImageId,
 	}, nil
 }
 
