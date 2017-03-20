@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/apprenda/kismatic-provision/provision/plan"
-	"github.com/apprenda/kismatic/integration/aws"
 )
 
 const (
@@ -241,7 +240,7 @@ func (p awsProvisioner) updateNodeWithDeets(nodeID string, node *plan.Node) erro
 		re := regexp.MustCompile("[^.]*")
 		hostname := re.FindString(awsNode.PrivateDNSName)
 		// RedHat uses FQDN as the hostname
-		if awsNode.ImageID == string(aws.RedHat7East) {
+		if awsNode.ImageID == string(RedHat7East) {
 			hostname = awsNode.PrivateDNSName
 		}
 		node.Host = hostname
