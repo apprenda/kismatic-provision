@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/apprenda/kismatic-provision/provision/retry"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -150,10 +151,10 @@ func (c Client) tagResourceProvisionedBy(resourceId *string) error {
 			},
 		},
 	}
-	if _, err = api.CreateTags(tagReq); err != nil {
+	return retry.WithBackoff(3, func() error {
+		_, err = api.CreateTags(tagReq)
 		return err
-	}
-	return nil
+	})
 }
 
 func (c Client) TagResourceName(resourceId *string, name string) error {
