@@ -35,6 +35,7 @@ type DOOpts struct {
 	SshPublic       string
 	BootstrapNode   bool
 	RemoveKey       bool
+	BootstrapFile   string
 }
 
 func Cmd() *cobra.Command {
@@ -60,11 +61,10 @@ func DOCreateCmd() *cobra.Command {
 		of VM initialization. By default, it will place the downloaded packages in the /ket/ folder. The default location can be overwritten
 		by setting an environmental variable 'DO_KET_INSTALL_DIR'. If the bootstrap node is not requested, the Kismatic and Kubectl packages 
 		will have to be downloaded manually. See digitalocean/scripts/bootinit.sh for details.
-		
-		In addition to the commands below, the provisioner relies on some environment variables and conventions:
+	In addition to the commands below, the provisioner relies on some environment variables and conventions:
 Required:
   DO_API_TOKEN: [Required] Your Digital Ocean access token, required for all operations
-  DO_SECRET_ACCESS_KEY: [Required] Your Digital Ocean secret key, required for all operations. If the env varaible does
+  DO_SECRET_ACCESS_KEY: [Required] Your Digital Ocean ssh key, required for all operations. If the env varaible does
 not exist, an attempt will be made to use ssh key file in the following relative location: ssh/cluster.pem file. If the file is
 not found, the program will fail.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -84,6 +84,7 @@ not found, the program will fail.`,
 	cmd.Flags().StringVarP(&opts.SSHUser, "sshuser", "", "root", "SSH User name")
 	cmd.Flags().BoolVarP(&opts.BootstrapNode, "bootstrap", "", true, "Create a bootstrap node from which users can work with the cluster.")
 	cmd.Flags().BoolVarP(&opts.Storage, "storage-cluster", "s", false, "Create a storage cluster from all Worker nodes.")
+	cmd.Flags().StringVarP(&opts.BootstrapFile, "bootstrap-commands-file", "", "", "Relative path to the script file that will be run on the bootstrap node upon initialization. e.g.: digitalocean/scripts/bootinit.sh.")
 
 	return cmd
 }
@@ -195,7 +196,11 @@ func makeInfra(opts DOOpts) error {
 		if opts.Storage {
 			storageNodes = nodes.Worker
 		}
-		remoteSSH := fmt.Sprintf("/ket/ssh/%s", opts.SshKeyName)
+		root := os.Getenv("DO_KET_INSTALL_DIR")
+		if root == "" {
+			root = KET_INSTALL_DIR
+		}
+		remoteSSH := fmt.Sprintf("%s/ssh/%s", root, opts.SshKeyName)
 		return makePlan(&plan.Plan{
 			AdminPassword:       generateAlphaNumericPassword(),
 			Etcd:                nodes.Etcd,
@@ -242,7 +247,10 @@ func makePlan(pln *plan.Plan, opts DOOpts, nodes ProvisionedNodes) error {
 		if root == "" {
 			root = KET_INSTALL_DIR
 		}
-		destPath := root + "kismatic - cluster.yaml"
+		if opts.BootstrapFile == "" {
+			root = ""
+		}
+		destPath := root + "/kismatic-cluster.yaml"
 		out, scperr := scpFile(planPath, destPath, opts.SSHUser, boot.PublicIPv4, opts.SshPrivate)
 		if scperr != nil {
 			fmt.Errorf("Unable to push kismatic plan to boostrap node %v\n", scperr)

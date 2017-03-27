@@ -14,7 +14,7 @@ import (
 
 const (
 	SSHKEY          = "apprenda-key"
-	KET_INSTALL_DIR = "/ket/"
+	KET_INSTALL_DIR = "/ket"
 )
 
 type infrastructureProvisioner interface {
@@ -159,9 +159,13 @@ func (p doProvisioner) ProvisionNodes(opts DOOpts, nodeCount NodeCount) (Provisi
 
 	var dropletsBoot []Droplet
 	for i = 0; i < nodeCount.Boostrap; i++ {
-		cmd, cmderr := loadBootCmds()
-		if cmderr != nil {
-			fmt.Println("Cannot load script file for boot init", cmderr)
+		cmd := ""
+		var cmderr error
+		if opts.BootstrapFile != "" {
+			cmd, cmderr = loadBootCmds(opts.BootstrapFile)
+			if cmderr != nil {
+				fmt.Println("Cannot load script file for boot init", cmderr)
+			}
 		}
 		config := optionsToConfig(&opts, fmt.Sprintf("bootstrap%d", i+1), "", cmd)
 		fmt.Println("Bootstrap node:", config)
@@ -252,12 +256,13 @@ func WaitForSSH(ProvisionedNodes ProvisionedNodes, sshKey string) error {
 	return nil
 }
 
-func loadBootCmds() (string, error) {
+func loadBootCmds(path string) (string, error) {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		return "", fmt.Errorf("Cannot get path to exec %v\n", err)
 	}
-	cmdpath := filepath.Join(dir, "digitalocean/scripts/bootinit.sh")
+
+	cmdpath := filepath.Join(dir, path)
 	cmd, errcmd := ioutil.ReadFile(cmdpath)
 	if errcmd != nil {
 		fmt.Println("Cannot read public boot init file", errcmd)
