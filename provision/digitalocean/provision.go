@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sashajeltuhin/kismatic-provision/provision/plan"
+	"github.com/apprenda/kismatic-provision/provision/plan"
 )
 
 const (
@@ -112,7 +112,7 @@ func (p doProvisioner) ProvisionNodes(opts DOOpts, nodeCount NodeCount) (Provisi
 	provisioned := ProvisionedNodes{}
 	keyconf := KeyConfig{}
 	keyconf.Name = SSHKEY
-	keyconf.PublicKeyFile = opts.SshPublic
+	keyconf.PublicKeyFile = opts.SSHPublicKey
 	existing, _ := p.client.FindKeyByName(opts.Token, keyconf.Name)
 	var key KeyConfig
 	var errkey error
