@@ -16,6 +16,8 @@ get-deps:
 	go get github.com/packethost/packngo
 	go get github.com/michaelbironneau/garbler/lib
 	go get github.com/spf13/cobra
+	go get golang.org/x/oauth2
+	go get github.com/digitalocean/godo
 
 build: get-deps
 	GOOS=linux go build -o bin/linux/provision ./provision
