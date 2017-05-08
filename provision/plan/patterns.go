@@ -31,7 +31,7 @@ const OverlayNetworkPlan = `cluster:
     ssh_key: {{.SSHKeyFile}}             # Absolute path to the ssh public key we should use to manage nodes.
     ssh_port: 22
 docker_registry:                         # Here you will provide the details of your Docker registry or setup an internal one to run in the cluster. This is optional and the cluster will always have access to the Docker Hub.
-  setup_internal: true                  # When true, a Docker Registry will be installed on top of your cluster and used to host Docker images needed for its installation.
+  setup_internal: false                  # When true, a Docker Registry will be installed on top of your cluster and used to host Docker images needed for its installation.
   address: ""                            # IP or hostname for your Docker registry. An internal registry will NOT be setup when this field is provided. Must be accessible from all the nodes in the cluster.
   port: 443                              # Port for your Docker registry.
   CA: ""                                 # Absolute path to the CA that was used when starting your Docker registry. The docker daemons on all nodes in the cluster will be configured with this CA.
