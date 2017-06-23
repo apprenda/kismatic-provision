@@ -36,10 +36,11 @@ func AddSharedFlags(cmd *cobra.Command, opts *VagrantCmdOpts) {
 	opts.Vagrantfile = "Vagrantfile"
 
 	//PlanOpts
-	// (*cmd).Flags().BoolVar(&opts.AllowPackageInstallation, "allowPackageInstallation", true, "If true, allows os packages to be installed automatically")
-	opts.AllowPackageInstallation = true
+	// (*cmd).Flags().BoolVar(&opts.DisablePackageInstallation, "disablePackageInstallation", true, "If true, will not install OS packages automatically")
+	opts.DisablePackageInstallation = false
 	//(*cmd).Flags().BoolVar(&opts.AutoConfiguredDockerRegistry, "autoConfiguredDockerRegistry", true, "If true, installs a auto-configured Docker registry")
-	opts.AutoConfiguredDockerRegistry = true
+	opts.AutoConfiguredDockerRegistry = false
+	opts.DockerRegistryPort = 8443
 	// (*cmd).Flags().StringVar(&opts.DockerRegistryHost, "dockerRegistryIP", "", "IP or hostname for your Docker registry. An internal registry will NOT be setup when this field is provided. Must be accessible from all the nodes in the cluster.")
 	// (*cmd).Flags().Uint16Var(&opts.DockerRegistryPort, "dockerRegistryPort", 443, "Port for your Docker registry")
 	// (*cmd).Flags().StringVar(&opts.DockerRegistryCAPath, "dockerRegistryCAPath", "", "Absolute path to the CA that was used when starting your Docker registry. The docker daemons on all nodes in the cluster will be configured with this CA.")
