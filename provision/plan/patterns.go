@@ -31,6 +31,8 @@ const OverlayNetworkPlan = `cluster:
     user: {{.SSHUser}}
     ssh_key: {{.SSHKeyFile}}             # Absolute path to the ssh public key we should use to manage nodes.
     ssh_port: 22
+  kube_apiserver:
+    option_overrides:
 docker:
   storage:
     direct_lvm:                          # Configure devicemapper in direct-lvm mode (RHEL/CentOS only).
