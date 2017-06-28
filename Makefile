@@ -1,7 +1,11 @@
 # Set the build version
 ifeq ($(origin VERSION), undefined)
-	VERSION := $(shell git rev-parse --short HEAD)
+	VERSION := $(shell git describe --tags --always --dirty)
 endif
+
+build: get-deps
+	GOOS=linux go build -o bin/linux/provision ./provision
+	GOOS=darwin go build -o bin/darwin/provision ./provision
 
 get-deps:
 	go get github.com/onsi/ginkgo/ginkgo
@@ -19,7 +23,8 @@ get-deps:
 	go get golang.org/x/oauth2
 	go get github.com/digitalocean/godo
 
-build: get-deps
-	GOOS=linux go build -o bin/linux/provision ./provision
-	GOOS=darwin go build -o bin/darwin/provision ./provision
-
+publish:
+	@echo Triggering a build that should publish artifacts ot GitHub
+	curl -u $(CIRCLE_CI_TOKEN): -X POST --header "Content-Type: application/json" \
+		-d '{"tag": "$(VERSION)"}'                      \
+		https://circleci.com/api/v1.1/project/github/apprenda/kismatic-provision

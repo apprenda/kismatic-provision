@@ -1,0 +1,36 @@
+version: 2
+defaults: &defaults
+  working_directory: /go/src/github.com/apprenda/kismatic-provision
+  docker:
+    - image: golang:1.8
+
+jobs:
+  build:
+    <<: *defaults
+    steps:  
+      - checkout
+      - run: make build
+      - run: mkdir release
+      - run: cp /go/src/github.com/apprenda/kismatic-provision/bin/darwin/provision release/provision-darwin-amd64
+      - run: cp /go/src/github.com/apprenda/kismatic-provision/bin/linux/provision release/provision-linux-amd64
+      - run: go get -u github.com/tcnksm/ghr  
+      # Deploy to GitHub release  
+      - deploy:
+          command: | 
+            if [ -n "$CIRCLE_TAG" ]
+            then
+              echo $CIRCLE_TAG
+              ghr -draft -u $CIRCLE_PROJECT_USERNAME $CIRCLE_TAG release/
+            fi
+      - store_artifacts:
+          path: /go/src/github.com/apprenda/kismatic-provision/release/provision-darwin-amd64
+          destination: provision-darwin-amd64
+      - store_artifacts:
+          path: /go/src/github.com/apprenda/kismatic-provision/release/provision-linux-amd64
+          destination: provision-linux-amd64
+
+deployment:
+  fake_deploy_for_cci2:
+    tag: /.*/
+    commands:
+      - echo "make tags run in 2.0"
