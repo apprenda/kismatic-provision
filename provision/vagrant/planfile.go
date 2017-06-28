@@ -75,6 +75,9 @@ const planVagrantOverlay = `cluster:
     pod_cidr_block: {{.Opts.PodCIDR}}                                     # Kubernetes will assign pods IPs in this range. Do not use a range that is already in use on your local network!
     service_cidr_block: {{.Opts.ServiceCIDR}}                             # Kubernetes will assign services IPs in this range. Do not use a range that is already in use by your local network or pod network!
     update_hosts_files: true                                              # When true, the installer will add entries for all nodes to other nodes' hosts files. Use when you don't have access to DNS.
+    https_proxy:
+    http_proxy:
+    no_proxy:
   certificates:
     expiry: 17520h                                                        # Self-signed certificate expiration period in hours; default is 2 years.
   ssh:
