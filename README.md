@@ -4,15 +4,15 @@
 
 Quickly build Kubernetes development, test and demo clusters on AWS and [Packet](https://packet.net) (other provisioners coming!)
 
-[Mac & AWS] (docs/macaws.md)
+[Mac & AWS](docs/macaws.md)
 
-[Linux & AWS] (docs/linuxaws.md)
+[Linux & AWS](docs/linuxaws.md)
 
-[Mac & Packet] (docs/macpacket.md)
+[Mac & Packet](docs/macpacket.md)
 
-[Linux & Packet] (docs/linuxpacket.md)
+[Linux & Packet](docs/linuxpacket.md)
 
-[Mac & Vagrant] (docs/macvagrant.md)
+[Mac & Vagrant](docs/macvagrant.md)
 
 # Download
 
@@ -39,6 +39,8 @@ Set environment variables:
 
 Your user will need access to create EC2 instances, as well as access to create VPCs and other 
 networking objects if you want these to be provisioned for you.
+
+## Commands
 
 `provision aws create-minikube -f`
 
@@ -86,10 +88,11 @@ Required environment variables:
 
 Optional:
 
-* ** PACKET_SSH_KEY_PATH**: The path to the SSH private key to be used for accessing the machines. If empty, 
+* **PACKET_SSH_KEY_PATH**: The path to the SSH private key to be used for accessing the machines. If empty, 
 			    a file called `kismatic-packet.pem` in the current working directory is used as 
 			    the SSH private key.
 
+## Commands
 `provision packet create-minikube`
 
 to create infrastructure for a minikube (single machine instance) on a Type 0 along with a kismatic "plan" 
