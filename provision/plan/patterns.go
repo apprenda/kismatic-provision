@@ -21,7 +21,6 @@ const OverlayNetworkPlan = `cluster:
   disconnected_installation: false       # Set to true if you have already installed the required packages on the nodes or provided a local URL in package_repository_urls containing those packages.
   disable_registry_seeding: false        # Set to true if you have seeded your registry with the required images for the installation.
   networking:
-    type: overlay                        # overlay or routed. Routed pods can be addressed from outside the Kubernetes cluster; Overlay pods can only address each other.
     pod_cidr_block: 172.16.0.0/16        # Kubernetes will assign pods IPs in this range. Do not use a range that is already in use on your local network!
     service_cidr_block: 172.20.0.0/16    # Kubernetes will assign services IPs in this range. Do not use a range that is already in use by your local network or pod network!
     update_hosts_files: true             # When true, the installer will add entries for all nodes to other nodes' hosts files. Use when you don't have access to DNS.
@@ -30,6 +29,7 @@ const OverlayNetworkPlan = `cluster:
     no_proxy:
   certificates:
     expiry: 17520h                       # Self-signed certificate expiration period in hours; default is 2 years.
+    ca_expiry: 17520h                    # CA certificate expiration period in hours; default is 2 years.
   ssh:
     user: {{.SSHUser}}
     ssh_key: {{.SSHKeyFile}}             # Absolute path to the ssh public key we should use to manage nodes.
@@ -48,6 +48,12 @@ docker_registry:                         # Here you will provide the details of 
   port: 8443                             # Port for your Docker registry.
   CA: ""                                 # Absolute path to the CA that was used when starting your Docker registry. The docker daemons on all nodes in the cluster will be configured with this CA.
 add_ons:
+  cni:
+    disable: false                       
+    provider: calico                     # Options: 'calico','weave','contiv','custom'. Selecting 'custom' will result in a CNI ready cluster, however it is up to you to configure a plugin after the install.
+    options:
+      calico:
+        mode: overlay                    # Options: 'overlay','routed'. Routed pods can be addressed from outside the Kubernetes cluster; Overlay pods can only address each other.
   heapster:
     disable: false
     options:
