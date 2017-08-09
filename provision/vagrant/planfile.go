@@ -104,11 +104,15 @@ add_ons:
     options:
       calico:
         mode: overlay                                                     # Options: 'overlay','routed'. Routed pods can be addressed from outside the Kubernetes cluster; Overlay pods can only address each other.
+  dns:
+    disable: false
   heapster:
     disable: false
     options:
       heapster_replicas: 2
       influxdb_pvc_name: ""                                               # Provide the name of the persistent volume claim that you will create after installation. If not specified, the data will be stored in ephemeral storage.
+  dashboard:
+    disable: false
   package_manager:
     disable: false
     provider: helm                                                        # Options: 'helm'
