@@ -62,7 +62,7 @@ func newFromEnv() (*Client, error) {
 // CreateNode creates a node in packet with the given hostname and OS
 func (c Client) CreateNode(hostname string, os OS, region Region) (string, error) {
 	device := &packngo.DeviceCreateRequest{
-		HostName:     hostname,
+		Hostname:     hostname,
 		OS:           string(os),
 		Tags:         []string{"integration-test"},
 		ProjectID:    c.ProjectID,
