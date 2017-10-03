@@ -246,7 +246,7 @@ etcd:
   # left blank.
   nodes:{{range .Etcd}}
   - host: {{.Name}}
-    ip: {{.IP.String}}{{end}}
+    ip: {{.IP.String}}
     labels: {}{{end}}
 
 # Master nodes are the ones that run the Kubernetes control plane components.
@@ -262,7 +262,7 @@ master:
   load_balanced_short_name: {{with index .Master 0}}{{.IP.String}}{{end}}
   nodes:{{range .Master}}
   - host: {{.Name}}
-    ip: {{.IP.String}}{{end}}
+    ip: {{.IP.String}}
     labels: {}{{end}}
 
 # Worker nodes are the ones that will run your workloads on the cluster.
@@ -270,7 +270,7 @@ worker:
   expected_count: {{len .Worker}}
   nodes:{{range .Worker}}
   - host: {{.Name}}
-    ip: {{.IP.String}}{{end}}
+    ip: {{.IP.String}}
     labels: {}{{end}}
 
 # Ingress nodes will run the ingress controllers.
@@ -278,7 +278,7 @@ ingress:
   expected_count: {{len .Ingress}}
   nodes:{{range .Ingress}}
   - host: {{.Name}}
-    ip: {{.IP.String}}{{end}}
+    ip: {{.IP.String}}
     labels: {}{{end}}
 
 # Storage nodes will be used to create a distributed storage cluster that can
@@ -287,6 +287,6 @@ storage:
   expected_count: {{len .Storage}}
   nodes:{{range .Storage}}
   - host: {{.Name}}
-    ip: {{.IP.String}}{{end}}
+    ip: {{.IP.String}}
     labels: {}{{end}}
 `
