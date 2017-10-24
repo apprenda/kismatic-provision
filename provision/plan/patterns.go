@@ -20,8 +20,7 @@ const OverlayNetworkPlan = `cluster:
   # used for administration without a security certificate.
   admin_password: {{.AdminPassword}}
 
-  # When true, installation will not occur if any node is missing the correct
-  # deb/rpm packages.
+  # Set to true if the nodes have the required packages installed.
   disable_package_installation: false
 
   # Set to true if you are performing a disconnected installation.
@@ -38,8 +37,7 @@ const OverlayNetworkPlan = `cluster:
     # that is already in use by your local network or pod network!
     service_cidr_block: 172.20.0.0/16
 
-    # When true, the installer will add entries for all nodes to other nodes'
-    # hosts files. Use when you don't have access to DNS.
+    # Set to true if your nodes cannot resolve each others' names using DNS.
     update_hosts_files: true
 
     # Set the proxy server to use for HTTP connections.
@@ -120,11 +118,8 @@ docker:
 # all nodes on the cluster.
 docker_registry:
 
-  # IP or hostname for your registry.
-  address: ""
-
-  # Port for your registry.
-  port: 8443
+  # IP or hostname and port for your registry.
+  server: ""
 
   # Absolute path to the certificate authority that should be trusted when
   # connecting to your registry.
@@ -186,6 +181,10 @@ add_ons:
 
     # Options: 'helm'
     provider: helm
+
+  # The rescheduler ensures that critical add-ons remain running on the cluster.
+  rescheduler:
+    disable: false
 
 # Etcd nodes are the ones that run the etcd distributed key-value database.
 etcd:
