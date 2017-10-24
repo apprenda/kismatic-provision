@@ -135,7 +135,8 @@ const planVagrantOverlay = `cluster:
     option_overrides: {}
     
   kubelet:
-    option_overrides: {}
+    option_overrides:
+      fail-swap-on: false
 
   # Kubernetes cloud provider integration
   cloud_provider:
@@ -170,11 +171,8 @@ docker:
 # all nodes on the cluster.
 docker_registry:
 
-  # IP or hostname for your registry.
-  address: {{.Opts.DockerRegistryHost}}
-
-  # Port for your registry.
-  port: {{.Opts.DockerRegistryPort}}
+  # IP or hostname and port for your registry.
+  server: ""
 
   # Absolute path to the certificate authority that should be trusted when
   # connecting to your registry.
@@ -236,6 +234,10 @@ add_ons:
 
     # Options: 'helm'
     provider: helm
+
+  # The rescheduler ensures that critical add-ons remain running on the cluster.
+  rescheduler:
+    disable: false
 
 # Etcd nodes are the ones that run the etcd distributed key-value database.
 etcd:
