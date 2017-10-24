@@ -70,8 +70,7 @@ const planVagrantOverlay = `cluster:
   # used for administration without a security certificate.
   admin_password: {{.Opts.AdminPassword}}
 
-  # When true, installation will not occur if any node is missing the correct
-  # deb/rpm packages.
+  # Set to true if the nodes have the required packages installed.
   disable_package_installation: {{.Opts.DisablePackageInstallation}}
 
   # Set to true if you are performing a disconnected installation.
@@ -88,8 +87,7 @@ const planVagrantOverlay = `cluster:
     # that is already in use by your local network or pod network!
     service_cidr_block: {{.Opts.ServiceCIDR}}
 
-    # When true, the installer will add entries for all nodes to other nodes'
-    # hosts files. Use when you don't have access to DNS.
+    # Set to true if your nodes cannot resolve each others' names using DNS.
     update_hosts_files: true
 
     # Set the proxy server to use for HTTP connections.
