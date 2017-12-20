@@ -66,10 +66,6 @@ func (p *Plan) Storage() []NodeDetails {
 const planVagrantOverlay = `cluster:
   name: kubernetes
 
-  # This password is used to login to the Kubernetes Dashboard and can also be
-  # used for administration without a security certificate.
-  admin_password: {{.Opts.AdminPassword}}
-
   # Set to true if the nodes have the required packages installed.
   disable_package_installation: {{.Opts.DisablePackageInstallation}}
 
@@ -131,7 +127,7 @@ const planVagrantOverlay = `cluster:
 
   kube_proxy:
     option_overrides: {}
-    
+
   kubelet:
     option_overrides:
       fail-swap-on: false
@@ -149,6 +145,12 @@ const planVagrantOverlay = `cluster:
 
 # Docker daemon configuration of all cluster nodes
 docker:
+  logs:
+    driver: json-file
+    opts:
+      max-file: "1"
+      max-size: 50m
+
   storage:
 
     # Configure devicemapper in direct-lvm mode (RHEL/CentOS only).
@@ -199,6 +201,12 @@ add_ons:
 
         # Options: 'warning','info','debug'.
         log_level: info
+
+        # MTU for the workload interface, configures the CNI config.
+        workload_mtu: 1500
+
+        # MTU for the tunnel device used if IPIP is enabled.
+        felix_input_mtu: 1440
 
   dns:
     disable: false
