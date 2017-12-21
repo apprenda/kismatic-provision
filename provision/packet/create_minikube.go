@@ -86,7 +86,6 @@ func runCreateMinikube(opts *packetOpts) error {
 		MasterNodeShortName: node.PublicIPv4,
 		SSHUser:             node.SSHUser,
 		SSHKeyFile:          c.SSHKey,
-		AdminPassword:       generateAlphaNumericPassword(),
 	}
 	f, err := makeUniqueFile(0)
 	if err := template.Execute(f, plan); err != nil {

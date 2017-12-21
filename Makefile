@@ -18,7 +18,6 @@ get-deps:
 	go get golang.org/x/crypto/ssh
 	go get github.com/cloudflare/cfssl/csr
 	go get github.com/packethost/packngo
-	go get github.com/michaelbironneau/garbler/lib
 	go get github.com/spf13/cobra
 	go get golang.org/x/oauth2
 	go get github.com/digitalocean/godo

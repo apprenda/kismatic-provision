@@ -13,7 +13,6 @@ type PlanOpts struct {
 	DockerRegistryHost           string
 	DockerRegistryPort           uint16
 	DockerRegistryCAPath         string
-	AdminPassword                string
 	PodCIDR                      string
 	ServiceCIDR                  string
 }

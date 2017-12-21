@@ -10,7 +10,6 @@ type Plan struct {
 	MasterNodeShortName string
 	SSHUser             string
 	SSHKeyFile          string
-	AdminPassword       string
 }
 
 const OverlayNetworkPlan = `cluster:
