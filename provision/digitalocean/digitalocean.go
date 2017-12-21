@@ -4,16 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"html/template"
-	"math/rand"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 
 	"strings"
 
 	"github.com/apprenda/kismatic-provision/provision/plan"
-	garbler "github.com/michaelbironneau/garbler/lib"
 	"github.com/spf13/cobra"
 )
 
@@ -221,7 +218,6 @@ func makeInfra(opts DOOpts) error {
 	}
 
 	return makePlan(&plan.Plan{
-		AdminPassword:       generateAlphaNumericPassword(),
 		Etcd:                nodes.Etcd,
 		Master:              nodes.Master,
 		Worker:              nodes.Worker,
@@ -305,30 +301,5 @@ func printRole(title string, nodes *[]plan.Node) {
 	fmt.Printf("%v:\n", title)
 	for _, node := range *nodes {
 		fmt.Printf("  %v (%v, %v)\n", node.ID, node.PublicIPv4, node.PrivateIPv4)
-	}
-}
-
-func generateAlphaNumericPassword() string {
-	attempts := 0
-	for {
-		reqs := &garbler.PasswordStrengthRequirements{
-			MinimumTotalLength: 16,
-			Uppercase:          rand.Intn(6),
-			Digits:             rand.Intn(6),
-			Punctuation:        -1, // disable punctuation
-		}
-		pass, err := garbler.NewPassword(reqs)
-		if err != nil {
-			return "weakpassword"
-		}
-		// validate that the library actually returned an alphanumeric password
-		re := regexp.MustCompile("^[a-zA-Z1-9]+$")
-		if re.MatchString(pass) {
-			return pass
-		}
-		if attempts == 50 {
-			return "weakpassword"
-		}
-		attempts++
 	}
 }

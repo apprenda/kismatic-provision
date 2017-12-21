@@ -2,16 +2,13 @@ package packet
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
-	"regexp"
 	"strconv"
 	"text/template"
 	"time"
 
 	"github.com/apprenda/kismatic-provision/provision/plan"
 
-	garbler "github.com/michaelbironneau/garbler/lib"
 	"github.com/spf13/cobra"
 )
 
@@ -165,7 +162,6 @@ func runCreate(opts *packetOpts) error {
 		MasterNodeShortName: nodes.master[0].PublicIPv4,
 		SSHUser:             nodes.master[0].SSHUser,
 		SSHKeyFile:          c.SSHKey,
-		AdminPassword:       generateAlphaNumericPassword(),
 	}
 
 	template, err := template.New("plan").Parse(plan.OverlayNetworkPlan)
@@ -179,31 +175,6 @@ func runCreate(opts *packetOpts) error {
 	fmt.Println("To install your cluster, run:")
 	fmt.Println("./kismatic install apply -f " + f.Name())
 	return nil
-}
-
-func generateAlphaNumericPassword() string {
-	attempts := 0
-	for {
-		reqs := &garbler.PasswordStrengthRequirements{
-			MinimumTotalLength: 16,
-			Uppercase:          rand.Intn(6),
-			Digits:             rand.Intn(6),
-			Punctuation:        -1, // disable punctuation
-		}
-		pass, err := garbler.NewPassword(reqs)
-		if err != nil {
-			return "weakpassword"
-		}
-		// validate that the library actually returned an alphanumeric password
-		re := regexp.MustCompile("^[a-zA-Z1-9]+$")
-		if re.MatchString(pass) {
-			return pass
-		}
-		if attempts == 50 {
-			return "weakpassword"
-		}
-		attempts++
-	}
 }
 
 func makeUniqueFile(count int) (*os.File, error) {

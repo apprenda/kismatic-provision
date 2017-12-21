@@ -9,14 +9,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"math/rand"
 	"net"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 
-	garbler "github.com/michaelbironneau/garbler/lib"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -89,31 +86,6 @@ func MakeUniqueFile(name string, suffix string, count int) (*os.File, error) {
 		return os.Create(filename)
 	} else {
 		return MakeUniqueFile(name, suffix, count+1)
-	}
-}
-
-func GenerateAlphaNumericPassword() string {
-	attempts := 0
-	for {
-		reqs := &garbler.PasswordStrengthRequirements{
-			MinimumTotalLength: 16,
-			Uppercase:          rand.Intn(6),
-			Digits:             rand.Intn(6),
-			Punctuation:        -1, // disable punctuation
-		}
-		pass, err := garbler.NewPassword(reqs)
-		if err != nil {
-			return "weakpassword"
-		}
-		// validate that the library actually returned an alphanumeric password
-		re := regexp.MustCompile("^[a-zA-Z1-9]+$")
-		if re.MatchString(pass) {
-			return pass
-		}
-		if attempts == 50 {
-			return "weakpassword"
-		}
-		attempts++
 	}
 }
 

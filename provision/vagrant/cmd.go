@@ -44,8 +44,6 @@ func AddSharedFlags(cmd *cobra.Command, opts *VagrantCmdOpts) {
 	// (*cmd).Flags().StringVar(&opts.DockerRegistryHost, "dockerRegistryIP", "", "IP or hostname for your Docker registry. An internal registry will NOT be setup when this field is provided. Must be accessible from all the nodes in the cluster.")
 	// (*cmd).Flags().Uint16Var(&opts.DockerRegistryPort, "dockerRegistryPort", 443, "Port for your Docker registry")
 	// (*cmd).Flags().StringVar(&opts.DockerRegistryCAPath, "dockerRegistryCAPath", "", "Absolute path to the CA that was used when starting your Docker registry. The docker daemons on all nodes in the cluster will be configured with this CA.")
-	(*cmd).Flags().StringVar(&opts.AdminPassword, "adminPassword", utils.GenerateAlphaNumericPassword(), "This password is used to login to the Kubernetes Dashboard and can also be used for administration without a security certificate")
-	opts.AdminPassword = utils.GenerateAlphaNumericPassword()
 	// (*cmd).Flags().StringVar(&opts.PodCIDR, "podCIDR", "172.16.0.0/16", "Kubernetes will assign pods IPs in this range. Do not use a range that is already in use on your local network!")
 	opts.PodCIDR = "172.16.0.0/16"
 	// (*cmd).Flags().StringVar(&opts.ServiceCIDR, "serviceCIDR", "172.20.0.0/16", "Kubernetes will assign services IPs in this range. Do not use a range that is already in use by your local network or pod network!")

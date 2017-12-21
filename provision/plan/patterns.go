@@ -10,15 +10,10 @@ type Plan struct {
 	MasterNodeShortName string
 	SSHUser             string
 	SSHKeyFile          string
-	AdminPassword       string
 }
 
 const OverlayNetworkPlan = `cluster:
   name: kubernetes
-
-  # This password is used to login to the Kubernetes Dashboard and can also be
-  # used for administration without a security certificate.
-  admin_password: {{.AdminPassword}}
 
   # Set to true if the nodes have the required packages installed.
   disable_package_installation: false
@@ -98,6 +93,12 @@ const OverlayNetworkPlan = `cluster:
 
 # Docker daemon configuration of all cluster nodes
 docker:
+  logs:
+    driver: json-file
+    opts:
+      max-file: "1"
+      max-size: 50m
+
   storage:
 
     # Configure devicemapper in direct-lvm mode (RHEL/CentOS only).
@@ -149,6 +150,12 @@ add_ons:
         # Options: 'warning','info','debug'.
         log_level: info
 
+        # MTU for the workload interface, configures the CNI config.
+        workload_mtu: 1500
+
+        # MTU for the tunnel device used if IPIP is enabled.
+        felix_input_mtu: 1440
+
   dns:
     disable: false
 
@@ -175,7 +182,7 @@ add_ons:
 
   dashboard:
     disable: false
-    
+  
   package_manager:
     disable: false
 
