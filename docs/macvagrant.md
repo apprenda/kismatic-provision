@@ -36,5 +36,5 @@ wget -O - <latest darwin release url> | tar -zx
 ## Tear it down when you're done with it
 
 ```
-vagrant desrtoy --force
+vagrant destroy --force
 ```
