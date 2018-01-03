@@ -17,9 +17,13 @@ In a terminal, run the following commands to download KET.
 # Make a new directory for Kismatic and make it the working dir
 mkdir ~/kismatic
 cd ~/kismatic
+```
 
-# Download and unpack KET
-wget -O - https://kismatic-installer.s3-accelerate.amazonaws.com/latest-darwin/kismatic.tar.gz | tar -zx
+Browse to https://github.com/apprenda/kismatic/releases and get the latest darwin release URL
+
+``` bash
+# Download and unpack KET 
+wget -O - <latest darwin release url> | tar -zx
 ```
 
 ## Make a new cluster
