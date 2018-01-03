@@ -32,5 +32,5 @@ wget -O - https://kismatic-installer.s3-accelerate.amazonaws.com/latest-darwin/k
 ## Tear it down when you're done with it
 
 ```
-vagrant desrtoy --force
+vagrant destroy --force
 ```
