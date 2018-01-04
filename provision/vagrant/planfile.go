@@ -129,7 +129,6 @@ const planVagrantOverlay = `cluster:
 
   kubelet:
     option_overrides:
-      fail-swap-on: false
 
   # Kubernetes cloud provider integration
   cloud_provider:
