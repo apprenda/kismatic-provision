@@ -66,6 +66,9 @@ Vagrant.configure(2) do |config|
         # needed to get around a vagrant stack bug with Ubuntu, safe for Centos
         v.customize ["modifyvm", :id, "--cableconnected1", "on"]
       end
+      
+      # Disable swap for each vm
+      config.vm.provision "shell", inline: "swapoff -a"
 
       config.vm.network :private_network, ip: opts[:eth1]
 
