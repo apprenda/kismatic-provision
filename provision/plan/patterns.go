@@ -15,6 +15,9 @@ type Plan struct {
 const OverlayNetworkPlan = `cluster:
   name: kubernetes
 
+  # Kubernetes cluster version
+  version:
+
   # Set to true if the nodes have the required packages installed.
   disable_package_installation: false
 
@@ -80,7 +83,7 @@ const OverlayNetworkPlan = `cluster:
   kubelet:
     option_overrides: {}
 
-  # Kubernetes cloud provider integration
+  # Kubernetes cloud provider integration.
   cloud_provider:
 
     # Options: 'aws','azure','cloudstack','fake','gce','mesos','openstack',
@@ -91,8 +94,11 @@ const OverlayNetworkPlan = `cluster:
     # Path to the config file, leave empty if provider does not require it.
     config: ""
 
-# Docker daemon configuration of all cluster nodes
+# Docker daemon configuration of all cluster nodes.
 docker:
+
+  # Set to true if docker is already installed and configured.
+  disable: false
   logs:
     driver: json-file
     opts:
@@ -101,17 +107,20 @@ docker:
 
   storage:
 
-    # Configure devicemapper in direct-lvm mode (RHEL/CentOS only).
-    direct_lvm:
-      enabled: false
+    # Leave empty to have docker automatically select the driver.
+    driver: ""
+    opts: {}
 
-      # Path to the block device that will be used for direct-lvm mode. This
-      # device will be wiped and used exclusively by docker.
-      block_device: ""
+    # Used for setting up Device Mapper storage driver in direct-lvm mode.
+    direct_lvm_block_device:
 
-      # Set to true if you want to enable deferred deletion when using
-      # direct-lvm mode.
-      enable_deferred_deletion: false
+      # Absolute path to the block device that will be used for direct-lvm mode.
+      # This device will be wiped and used exclusively by docker.
+      path: ""
+      thinpool_percent: "95"
+      thinpool_metapercent: "1"
+      thinpool_autoextend_threshold: "80"
+      thinpool_autoextend_percent: "20"
 
 # If you want to use an internal registry for the installation or upgrade, you
 # must provide its information here. You must seed this registry before the
@@ -159,6 +168,9 @@ add_ons:
   dns:
     disable: false
 
+    # Options: 'kubedns','coredns'.
+    provider: kubedns
+
   heapster:
     disable: false
     options:
@@ -186,7 +198,7 @@ add_ons:
   package_manager:
     disable: false
 
-    # Options: 'helm'
+    # Options: 'helm'.
     provider: helm
 
   # The rescheduler ensures that critical add-ons remain running on the cluster.
