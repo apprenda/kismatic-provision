@@ -215,6 +215,9 @@ add_ons:
         # MTU for the tunnel device used if IPIP is enabled.
         felix_input_mtu: 1440
 
+        # Used to detect the IPv4 address of the host.
+        ip_autodetection_method: first-found
+
   dns:
     disable: false
 
@@ -242,6 +245,10 @@ add_ons:
         # ephemeral storage.
         pvc_name: ""
 
+  # Metrics Server is a cluster-wide aggregator of resource usage data.
+  metrics_server:
+    disable: false
+
   dashboard:
     disable: false
 
@@ -250,6 +257,9 @@ add_ons:
 
     # Options: 'helm'.
     provider: helm
+    options:
+      helm:
+        namespace: kube-system
 
   # The rescheduler ensures that critical add-ons remain running on the cluster.
   rescheduler:
