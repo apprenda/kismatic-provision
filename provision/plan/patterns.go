@@ -168,6 +168,12 @@ add_ons:
         # Used to detect the IPv4 address of the host.
         ip_autodetection_method: first-found
 
+      weave:
+
+        # Used by Weave for network traffic encryption.
+        # Should be reasonably strong, with at least 50 bits of entropy.
+        password: ""
+
   dns:
     disable: false
 
