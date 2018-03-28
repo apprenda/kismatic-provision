@@ -179,6 +179,8 @@ add_ons:
 
     # Options: 'kubedns','coredns'.
     provider: kubedns
+    options:
+      replicas: 2
 
   heapster:
     disable: false
