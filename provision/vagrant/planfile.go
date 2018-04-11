@@ -191,6 +191,9 @@ docker_registry:
   # Leave blank for unauthenticated access.
   password: ""
 
+# A set of files or directories to copy from the local machine to any of the nodes in the cluster.
+additional_files: []
+
 # Add-ons are additional components that KET installs on the cluster.
 add_ons:
   cni:
@@ -259,6 +262,8 @@ add_ons:
 
   dashboard:
     disable: false
+    options:
+      service_type: ClusterIP
 
   package_manager:
     disable: false
@@ -282,8 +287,7 @@ etcd:
   # left blank.
   nodes:{{range .Etcd}}
   - host: {{.Name}}
-    ip: {{.IP.String}}
-    labels: {}{{end}}
+    ip: {{.IP.String}}{{end}}
 
 # Master nodes are the ones that run the Kubernetes control plane components.
 master:
@@ -299,7 +303,8 @@ master:
   nodes:{{range .Master}}
   - host: {{.Name}}
     ip: {{.IP.String}}
-    labels: {}{{end}}
+    labels: {}
+    taints: []{{end}}
 
 # Worker nodes are the ones that will run your workloads on the cluster.
 worker:
@@ -307,7 +312,8 @@ worker:
   nodes:{{range .Worker}}
   - host: {{.Name}}
     ip: {{.IP.String}}
-    labels: {}{{end}}
+    labels: {}
+    taints: []{{end}}
 
 # Ingress nodes will run the ingress controllers.
 ingress:
@@ -315,7 +321,8 @@ ingress:
   nodes:{{range .Ingress}}
   - host: {{.Name}}
     ip: {{.IP.String}}
-    labels: {}{{end}}
+    labels: {}
+    taints: []{{end}}
 
 # Storage nodes will be used to create a distributed storage cluster that can
 # be consumed by your workloads.
@@ -324,5 +331,6 @@ storage:
   nodes:{{range .Storage}}
   - host: {{.Name}}
     ip: {{.IP.String}}
-    labels: {}{{end}}
+    labels: {}
+    taints: []{{end}}
 `
