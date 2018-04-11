@@ -163,7 +163,7 @@ func (c Client) GetSSHAccessibleNode(deviceID string, timeout time.Duration, ssh
 
 func (c Client) ListNodes() ([]plan.Node, error) {
 	client := c.getAPIClient()
-	devices, _, err := client.Devices.List(c.ProjectID)
+	devices, _, err := client.Devices.List(c.ProjectID, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error listing nodes: %v", err)
 	}
