@@ -154,6 +154,8 @@ add_ons:
     # Options: 'calico','weave','contiv','custom'.
     provider: calico
     options:
+      portmap:
+        disable: false
       calico:
 
         # Options: 'overlay','routed'.
