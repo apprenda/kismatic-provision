@@ -1,0 +1,22 @@
+package: github.com/apprenda/kismatic-provision
+import:
+- package: github.com/aws/aws-sdk-go
+  version: ~1.13.56
+  subpackages:
+  - aws
+  - aws/awserr
+  - aws/credentials
+  - aws/session
+  - service/ec2
+- package: github.com/digitalocean/godo
+  version: ~1.3.0
+- package: github.com/packethost/packngo
+  version: v0.1.0
+- package: github.com/spf13/cobra
+  version: ~0.0.3
+- package: golang.org/x/crypto
+  subpackages:
+  - ssh
+- package: golang.org/x/oauth2
+- package: github.com/spf13/pflag
+  version: ~1.0.1
