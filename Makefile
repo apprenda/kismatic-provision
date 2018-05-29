@@ -1,3 +1,13 @@
+GLIDE_VERSION = v0.13.1
+
+# If no target is defined, assume the host is the target.
+ifeq ($(origin GOOS), undefined)
+	GOOS := $(shell go env GOOS)
+endif
+ifeq ($(origin GOARCH), undefined)
+	GOARCH := $(shell go env GOARCH)
+endif
+
 # Set the build version
 ifeq ($(origin VERSION), undefined)
 	VERSION := $(shell git describe --tags --always --dirty)
@@ -7,20 +17,14 @@ build: get-deps
 	GOOS=linux go build -o bin/linux/provision ./provision
 	GOOS=darwin go build -o bin/darwin/provision ./provision
 
-get-deps:
-	go get github.com/onsi/ginkgo/ginkgo
-	go get github.com/onsi/gomega
-	go get github.com/jmcvetta/guid
-	go get gopkg.in/yaml.v2
-	go get -u github.com/aws/aws-sdk-go
-	go get github.com/mitchellh/go-homedir
-	go install github.com/onsi/ginkgo/ginkgo
-	go get golang.org/x/crypto/ssh
-	go get github.com/cloudflare/cfssl/csr
-	go get github.com/packethost/packngo
-	go get github.com/spf13/cobra
-	go get golang.org/x/oauth2
-	go get github.com/digitalocean/godo
+tools/glide-$(GOOS)-$(GOARCH):
+	mkdir -p tools
+	curl -L https://github.com/Masterminds/glide/releases/download/$(GLIDE_VERSION)/glide-$(GLIDE_VERSION)-$(GOOS)-$(GOARCH).tar.gz | tar -xz -C tools
+	mv tools/$(GOOS)-$(GOARCH)/glide tools/glide-$(GOOS)-$(GOARCH)
+	rm -r tools/$(GOOS)-$(GOARCH)
+
+get-deps: tools/glide-$(GOOS)-$(GOARCH)
+	tools/glide-$(GOOS)-$(GOARCH) install -v
 
 publish:
 	@echo Triggering a build that should publish artifacts ot GitHub

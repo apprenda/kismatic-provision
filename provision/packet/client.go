@@ -62,7 +62,7 @@ func newFromEnv() (*Client, error) {
 // CreateNode creates a node in packet with the given hostname and OS
 func (c Client) CreateNode(hostname string, os OS, region Region) (string, error) {
 	device := &packngo.DeviceCreateRequest{
-		Hostname:     hostname,
+		HostName:     hostname,
 		OS:           string(os),
 		Tags:         []string{"integration-test"},
 		ProjectID:    c.ProjectID,
@@ -163,7 +163,7 @@ func (c Client) GetSSHAccessibleNode(deviceID string, timeout time.Duration, ssh
 
 func (c Client) ListNodes() ([]plan.Node, error) {
 	client := c.getAPIClient()
-	devices, _, err := client.Devices.List(c.ProjectID, nil)
+	devices, _, err := client.Devices.List(c.ProjectID)
 	if err != nil {
 		return nil, fmt.Errorf("error listing nodes: %v", err)
 	}
