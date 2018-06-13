@@ -218,15 +218,14 @@ func makeInfra(opts DOOpts) error {
 	}
 
 	return makePlan(&plan.Plan{
-		Etcd:                nodes.Etcd,
-		Master:              nodes.Master,
-		Worker:              nodes.Worker,
-		Ingress:             []plan.Node{nodes.Worker[0]},
-		Storage:             storageNodes,
-		MasterNodeFQDN:      nodes.Master[0].PublicIPv4,
-		MasterNodeShortName: nodes.Master[0].PublicIPv4,
-		SSHKeyFile:          sshKeyFile,
-		SSHUser:             nodes.Master[0].SSHUser,
+		Etcd:         nodes.Etcd,
+		Master:       nodes.Master,
+		Worker:       nodes.Worker,
+		Ingress:      []plan.Node{nodes.Worker[0]},
+		Storage:      storageNodes,
+		LoadBalancer: nodes.Master[0].PublicIPv4 + ":6443",
+		SSHKeyFile:   sshKeyFile,
+		SSHUser:      nodes.Master[0].SSHUser,
 	}, opts, nodes)
 
 }

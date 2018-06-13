@@ -77,15 +77,14 @@ func runCreateMinikube(opts *packetOpts) error {
 	}
 
 	plan := plan.Plan{
-		Etcd:                []plan.Node{*node},
-		Master:              []plan.Node{*node},
-		Worker:              []plan.Node{*node},
-		Ingress:             []plan.Node{*node},
-		Storage:             storageNodes,
-		MasterNodeFQDN:      node.PublicIPv4,
-		MasterNodeShortName: node.PublicIPv4,
-		SSHUser:             node.SSHUser,
-		SSHKeyFile:          c.SSHKey,
+		Etcd:         []plan.Node{*node},
+		Master:       []plan.Node{*node},
+		Worker:       []plan.Node{*node},
+		Ingress:      []plan.Node{*node},
+		Storage:      storageNodes,
+		LoadBalancer: node.PublicIPv4 + ":6443",
+		SSHUser:      node.SSHUser,
+		SSHKeyFile:   c.SSHKey,
 	}
 	f, err := makeUniqueFile(0)
 	if err := template.Execute(f, plan); err != nil {
