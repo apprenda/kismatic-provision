@@ -1,15 +1,14 @@
 package plan
 
 type Plan struct {
-	Etcd                []Node
-	Master              []Node
-	Worker              []Node
-	Ingress             []Node
-	Storage             []Node
-	MasterNodeFQDN      string
-	MasterNodeShortName string
-	SSHUser             string
-	SSHKeyFile          string
+	Etcd         []Node
+	Master       []Node
+	Worker       []Node
+	Ingress      []Node
+	Storage      []Node
+	LoadBalancer string
+	SSHUser      string
+	SSHKeyFile   string
 }
 
 const OverlayNetworkPlan = `cluster:
@@ -56,6 +55,10 @@ const OverlayNetworkPlan = `cluster:
 
     # CA certificate expiration period in hours; default is 2 years.
     ca_expiry: 17520h
+
+    # Optional extra Subject Alternative Names (SANs) to use for the API Server serving certificate.
+    # Can be both IP addresses and DNS names.
+    apiserver_cert_extra_sans: ""
 
   # SSH configuration for cluster nodes.
   ssh:
@@ -245,15 +248,11 @@ etcd:
 
 # Master nodes are the ones that run the Kubernetes control plane components.
 master:
+
+  # If you have set up load balancing for master nodes, enter the IP or DNS and Port.
+  # Otherwise, use the IP address of a single master node and port '6443'.
+  load_balancer: {{.LoadBalancer}}
   expected_count: {{len .Master}}
-
-  # If you have set up load balancing for master nodes, enter the FQDN name here.
-  # Otherwise, use the IP address of a single master node.
-  load_balanced_fqdn: {{.MasterNodeFQDN}}
-
-  # If you have set up load balancing for master nodes, enter the short name here.
-  # Otherwise, use the IP address of a single master node.
-  load_balanced_short_name: {{.MasterNodeShortName}}  
   nodes:{{range .Master}}
   - host: {{.Host}}
     ip: {{.PublicIPv4}}

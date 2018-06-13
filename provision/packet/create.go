@@ -153,15 +153,14 @@ func runCreate(opts *packetOpts) error {
 
 	// Write the plan file out
 	planit := plan.Plan{
-		Etcd:                nodes.etcd,
-		Master:              nodes.master,
-		Worker:              nodes.worker,
-		Ingress:             nodes.worker[0:1],
-		Storage:             storageNodes,
-		MasterNodeFQDN:      nodes.master[0].PublicIPv4,
-		MasterNodeShortName: nodes.master[0].PublicIPv4,
-		SSHUser:             nodes.master[0].SSHUser,
-		SSHKeyFile:          c.SSHKey,
+		Etcd:         nodes.etcd,
+		Master:       nodes.master,
+		Worker:       nodes.worker,
+		Ingress:      nodes.worker[0:1],
+		Storage:      storageNodes,
+		LoadBalancer: nodes.master[0].PublicIPv4 + ":6443",
+		SSHUser:      nodes.master[0].SSHUser,
+		SSHKeyFile:   c.SSHKey,
 	}
 
 	template, err := template.New("plan").Parse(plan.OverlayNetworkPlan)

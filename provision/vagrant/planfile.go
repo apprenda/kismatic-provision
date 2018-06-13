@@ -107,6 +107,10 @@ const planVagrantOverlay = `cluster:
     # CA certificate expiration period in hours; default is 2 years.
     ca_expiry: 17520h
 
+    # Optional extra Subject Alternative Names (SANs) to use for the API Server serving certificate.
+    # Can be both IP addresses and DNS names.
+    apiserver_cert_extra_sans: ""
+
   # SSH configuration for cluster nodes.
   ssh:
 
@@ -183,7 +187,7 @@ docker_registry:
 
   # Absolute path to the certificate authority that should be trusted when
   # connecting to your registry.
-  CA: {{.Opts.DockerRegistryCAPath}}
+  CA: "{{.Opts.DockerRegistryCAPath}}"
 
   # Leave blank for unauthenticated access.
   username: ""
@@ -294,15 +298,11 @@ etcd:
 
 # Master nodes are the ones that run the Kubernetes control plane components.
 master:
+
+  # If you have set up load balancing for master nodes, enter the IP or DNS and Port.
+  # Otherwise, use the IP address of a single master node and port '6443'.
+  load_balancer: {{with index .Master 0 }}{{.IP.String}}:6443{{end}}
   expected_count: {{len .Master}}
-
-  # If you have set up load balancing for master nodes, enter the FQDN name here.
-  # Otherwise, use the IP address of a single master node.
-  load_balanced_fqdn: {{with index .Master 0 }}{{.IP.String}}{{end}}
-
-  # If you have set up load balancing for master nodes, enter the short name here.
-  # Otherwise, use the IP address of a single master node.
-  load_balanced_short_name: {{with index .Master 0}}{{.IP.String}}{{end}}
   nodes:{{range .Master}}
   - host: {{.Name}}
     ip: {{.IP.String}}
