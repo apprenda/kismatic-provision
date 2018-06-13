@@ -220,6 +220,7 @@ add_ons:
     disable: false
     options:
       service_type: ClusterIP
+      node_port: ""
 
   package_manager:
     disable: false
